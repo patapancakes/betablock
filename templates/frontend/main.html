@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			html {font-family: "MS PGothic", sans-serif; color-scheme: light dark}
+			form input, form select {display: block; margin-bottom: 10px;}
+			a {text-decoration: none; padding-right: 10px;}
+			hr {border: 1px solid;}
+		</style>
+	</head>
+	<body>
+		<div id="nav">
+			<a href="/register">Register</a>
+			<a href="/setskin">Set Skin</a>
+			<a href="/setcape">Set Cape</a>
+			<a href="/setversion">Set Version</a>
+		</div>
+		<hr>
+		<h1>{{.Header}}</h1>
+			{{if .Success}}<h2>Success!</h2>{{end}}
+			{{if ne .Error ""}}<h2>{{.Error}}</h2>{{end}}
+			{{if eq .Page "register"}}{{template "register" .}}{{end}}
+			{{if eq .Page "setskin"}}{{template "setskin" .}}{{end}} 
+			{{if eq .Page "setcape"}}{{template "setcape" .}}{{end}}
+			{{if eq .Page "setversion"}}{{template "setversion" .}}{{end}}
+	</body>
+</html>

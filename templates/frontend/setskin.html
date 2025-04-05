@@ -1,0 +1,11 @@
+{{define "setskin"}}
+<form action="/setskin" enctype="multipart/form-data" method="post">
+	<label for="username">Username</label>
+	<input type="text" name="username" placeholder="Username" minlength="3" maxlength="16" required>
+	<label for="password">Password</label>
+	<input type="password" name="password" placeholder="Password" minlength="6" maxlength="72" required>
+	<label for="image">Skin Image (up to 16KB)</label>
+	<input type="file" name="image" accept="image/png" required>
+	<input type="submit" value="Submit">
+</form>
+{{end}}
