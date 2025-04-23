@@ -19,6 +19,7 @@
 package s3
 
 import (
+	"archive/zip"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -117,7 +118,13 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		p, err := patcher.PatchGameClient(f, s.Size())
+		zr, err := zip.NewReader(f, s.Size())
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to open client zip: %s", err), http.StatusInternalServerError)
+			return
+		}
+
+		p, err := patcher.NewPatcher(zr)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to patch client: %s", err), http.StatusInternalServerError)
 			return
