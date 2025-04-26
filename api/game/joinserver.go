@@ -29,31 +29,31 @@ import (
 func JoinServer(w http.ResponseWriter, r *http.Request) {
 	sessionId, err := hex.DecodeString(r.URL.Query().Get("sessionId"))
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to decode sessionId: %s", err), http.StatusBadRequest)
+		http.Error(w, "Bad response", http.StatusBadRequest)
 		return
 	}
 
 	serverId, err := getPaddedServerID(r.URL.Query().Get("serverId"))
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to decode serverId: %s", err), http.StatusBadRequest)
+		http.Error(w, "Bad response", http.StatusBadRequest)
 		return
 	}
 
 	username, err := db.GetUsernameFromSession(sessionId)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to get username from sessionId: %s", err), http.StatusBadRequest)
+		http.Error(w, "Bad login", http.StatusUnauthorized)
 		return
 	}
 	if r.URL.Query().Get("user") != username {
-		http.Error(w, "username does not match", http.StatusUnauthorized)
+		http.Error(w, "Bad login", http.StatusUnauthorized)
 		return
 	}
 
 	err = db.SetUserServerID(username, serverId)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to set user serverId: %s", err), http.StatusBadRequest)
+		http.Error(w, "Bad response", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Fprint(w, "ok")
+	fmt.Fprint(w, "OK")
 }

@@ -29,17 +29,17 @@ import (
 func CheckServer(w http.ResponseWriter, r *http.Request) {
 	serverId, err := getPaddedServerID(r.URL.Query().Get("serverId"))
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to decode serverId: %s", err), http.StatusBadRequest)
+		fmt.Fprint(w, "NO")
 		return
 	}
 
 	sid, err := db.GetUserServerID(r.URL.Query().Get("user"))
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to get user serverId: %s", err), http.StatusBadRequest)
+		fmt.Fprint(w, "NO")
 		return
 	}
 	if !bytes.Equal(serverId, sid) {
-		http.Error(w, "serverId does not match", http.StatusUnauthorized)
+		fmt.Fprint(w, "NO")
 		return
 	}
 

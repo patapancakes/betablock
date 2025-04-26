@@ -20,6 +20,8 @@ package login
 
 import (
 	"crypto/rand"
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -30,20 +32,20 @@ import (
 func Handle(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Bad response", http.StatusBadRequest)
 		return
 	}
 
 	username, err := db.GetCanonicalUsername(r.PostForm.Get("user"))
 	if err != nil {
-		fmt.Fprint(w, "Bad login")
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 
 	// password
 	err = db.ValidatePassword(username, r.PostForm.Get("password"))
 	if err != nil {
-		fmt.Fprint(w, "Bad login")
+		http.Error(w, "Bad login", http.StatusUnauthorized)
 		return
 	}
 
@@ -51,13 +53,13 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	ticket := make([]byte, 16)
 	_, err = rand.Read(ticket)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = db.InsertTicket(username, ticket)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -65,19 +67,24 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	session := make([]byte, 16)
 	_, err = rand.Read(session)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = db.InsertSession(username, session)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
 
 	// latest version
 	latestVersion, err := db.GetUserClientVersionChanged(username)
 	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+
 		latestVersion = time.UnixMilli(0)
 	}
 
