@@ -21,6 +21,7 @@ package login
 import (
 	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
@@ -29,7 +30,7 @@ import (
 	"github.com/patapancakes/betablock/db"
 )
 
-func Handle(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Bad response", http.StatusBadRequest)
@@ -89,4 +90,24 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%d:%x:%s:%x", latestVersion.Unix(), ticket, username, session)
+}
+
+func Session(w http.ResponseWriter, r *http.Request) {
+	session, err := hex.DecodeString(r.URL.Query().Get("session"))
+	if err != nil {
+		http.Error(w, "Bad response", http.StatusBadRequest)
+		return
+	}
+
+	username, err := db.GetUsernameFromSession(session)
+	if err != nil {
+		http.Error(w, "Bad login", http.StatusUnauthorized)
+		return
+	}
+	if r.URL.Query().Get("name") != username {
+		http.Error(w, "Bad login", http.StatusUnauthorized)
+		return
+	}
+
+	fmt.Fprint(w, "OK")
 }

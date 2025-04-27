@@ -72,7 +72,8 @@ func main() {
 	http.HandleFunc("/setversion", frontend.SetVersion)
 
 	// login
-	http.HandleFunc("login.betablock.net/", login.Handle)
+	http.HandleFunc("login.betablock.net/", login.Login)
+	http.HandleFunc("login.betablock.net/session", login.Session)
 
 	// s3
 	http.HandleFunc("s3.betablock.net/", s3.Handle)
