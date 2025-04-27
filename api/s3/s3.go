@@ -27,9 +27,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
+	"slices"
 	"strconv"
-	"strings"
 	"text/template"
 	"time"
 
@@ -55,12 +54,26 @@ type IndexFile struct {
 func Handle(w http.ResponseWriter, r *http.Request) {
 	path := filepath.Join("public/", r.URL.Path)
 
+	s, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	// directory listing
-	if strings.HasSuffix(r.URL.Path, "/") {
-		var err error
+	if s.IsDir() {
+		if !slices.Contains([]string{"MinecraftDownload", "MinecraftResources"}, s.Name()) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
 
 		var index Index
-		index.Name = strings.Trim(r.URL.Path, "/")
+		index.Name = s.Name()
 		index.Files, err = getFiles(path, path)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -80,8 +93,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	var of io.Reader
 
-	// handle version selection and patching
-	if r.URL.Path == "/MinecraftDownload/minecraft.jar" {
+	switch r.URL.Path {
+	case "/MinecraftDownload/minecraft.jar": // handle version selection and patching
 		ticket, err := hex.DecodeString(r.URL.Query().Get("ticket"))
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to decode ticket: %s", err), http.StatusBadRequest)
@@ -131,7 +144,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		}
 
 		of = p
-	} else { // normal file download
+	default: // normal file download
 		f, err := os.Open(path)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -187,27 +200,31 @@ func getFiles(base string, path string) ([]IndexFile, error) {
 
 		fpath := filepath.Join(path, e.Name())
 
-		stat, err := os.Stat(fpath)
+		f, err := os.Open(fpath)
 		if err != nil {
 			return nil, err
 		}
 
-		data, err := os.ReadFile(fpath)
+		stat, err := f.Stat()
 		if err != nil {
 			return nil, err
 		}
 
-		hash := md5.Sum(data)
+		hash := md5.New()
+		_, err = io.Copy(hash, f)
+		if err != nil {
+			return nil, err
+		}
 
-		indexpath := strings.TrimPrefix(fpath, base+string(os.PathSeparator))
-		if runtime.GOOS == "windows" {
-			indexpath = strings.ReplaceAll(indexpath, "\\", "/")
+		rel, err := filepath.Rel(base, fpath)
+		if err != nil {
+			return nil, err
 		}
 
 		files = append(files, IndexFile{
-			Path:     indexpath,
+			Path:     rel,
 			Modified: stat.ModTime(),
-			Hash:     hex.EncodeToString(hash[:]),
+			Hash:     hex.EncodeToString(hash.Sum(nil)),
 			Size:     int(stat.Size()),
 		})
 	}
