@@ -53,9 +53,10 @@ func main() {
 		log.Fatalf("error in database init: %s", err)
 	}
 
-	// game
-	http.HandleFunc("/game/joinserver.jsp", game.JoinServer)
-	http.HandleFunc("/game/checkserver.jsp", game.CheckServer)
+	http.HandleFunc("/register", frontend.Register)
+	http.HandleFunc("/setskin", frontend.SetCosmetic)
+	http.HandleFunc("/setcape", frontend.SetCosmetic)
+	http.HandleFunc("/setversion", frontend.SetVersion)
 
 	// action
 	http.HandleFunc("/register.jsp", func(w http.ResponseWriter, r *http.Request) {
@@ -66,14 +67,13 @@ func main() {
 		http.Redirect(w, r, "/register", http.StatusSeeOther)
 	})
 
-	http.HandleFunc("/register", frontend.Register)
-	http.HandleFunc("/setskin", frontend.SetCosmetic)
-	http.HandleFunc("/setcape", frontend.SetCosmetic)
-	http.HandleFunc("/setversion", frontend.SetVersion)
+	// game
+	http.HandleFunc("GET /game/joinserver.jsp", game.JoinServer)
+	http.HandleFunc("GET /game/checkserver.jsp", game.CheckServer)
 
 	// login
-	http.HandleFunc("login.betablock.net/", login.Login)
-	http.HandleFunc("login.betablock.net/session", login.Session)
+	http.HandleFunc("POST login.betablock.net/", login.Login)
+	http.HandleFunc("GET login.betablock.net/session", login.Session)
 
 	// s3
 	http.HandleFunc("s3.betablock.net/", s3.Handle)
