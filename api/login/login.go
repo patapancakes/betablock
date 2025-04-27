@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// password
 	err = db.ValidatePassword(username, r.PostForm.Get("password"))
 	if err != nil {
-		http.Error(w, "Bad login", http.StatusUnauthorized)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 
@@ -101,11 +101,11 @@ func Session(w http.ResponseWriter, r *http.Request) {
 
 	username, err := db.GetUsernameFromSession(session)
 	if err != nil {
-		http.Error(w, "Bad login", http.StatusUnauthorized)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 	if r.URL.Query().Get("name") != username {
-		http.Error(w, "Bad login", http.StatusUnauthorized)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 

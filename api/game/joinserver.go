@@ -41,11 +41,11 @@ func JoinServer(w http.ResponseWriter, r *http.Request) {
 
 	username, err := db.GetUsernameFromSession(sessionId)
 	if err != nil {
-		http.Error(w, "Bad login", http.StatusUnauthorized)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 	if r.URL.Query().Get("user") != username {
-		http.Error(w, "Bad login", http.StatusUnauthorized)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 
