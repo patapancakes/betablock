@@ -73,6 +73,10 @@ func main() {
 	// s3
 	http.HandleFunc("s3.betablock.net/", s3.Handle)
 
+	// legacy assets
+	http.Handle("GET /resources/", http.StripPrefix("/resources/", http.FileServer(http.Dir("public/MinecraftResources"))))
+	http.Handle("GET /skin/", http.StripPrefix("/skin/", http.FileServer(http.Dir("public/MinecraftSkins"))))
+
 	// http stuff
 	http.ListenAndServe(fmt.Sprintf("%s:%d", *ip, *port), nil)
 }
