@@ -59,13 +59,8 @@ func main() {
 	http.HandleFunc("/setversion", frontend.SetVersion)
 
 	// action
-	http.HandleFunc("/register.jsp", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/register", http.StatusSeeOther)
-	})
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/register", http.StatusSeeOther)
-	})
+	http.Handle("/", http.RedirectHandler("/", http.StatusSeeOther))
+	http.Handle("/register.jsp", http.RedirectHandler("/register", http.StatusSeeOther))
 
 	// game
 	http.HandleFunc("GET /game/joinserver.jsp", game.JoinServer)
