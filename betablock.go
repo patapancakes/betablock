@@ -65,6 +65,7 @@ func main() {
 	// game
 	http.HandleFunc("GET /game/joinserver.jsp", game.JoinServer)
 	http.HandleFunc("GET /game/checkserver.jsp", game.CheckServer)
+	http.HandleFunc("POST /game/getversion.jsp", login.Login) // legacy login
 
 	// login
 	http.HandleFunc("POST login.betablock.net/", login.Login)
