@@ -59,7 +59,7 @@ func main() {
 	http.HandleFunc("/setversion", frontend.SetVersion)
 
 	// action
-	http.Handle("/", http.RedirectHandler("/", http.StatusSeeOther))
+	http.Handle("/", http.RedirectHandler("/register", http.StatusSeeOther))
 	http.Handle("/register.jsp", http.RedirectHandler("/register", http.StatusSeeOther))
 
 	// game
