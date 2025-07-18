@@ -57,6 +57,7 @@ func main() {
 	http.HandleFunc("/setskin", frontend.SetCosmetic)
 	http.HandleFunc("/setcape", frontend.SetCosmetic)
 	http.HandleFunc("/setversion", frontend.SetVersion)
+	http.HandleFunc("/delaccount", frontend.DeleteAccount)
 
 	// action
 	http.Handle("/", http.RedirectHandler("/register", http.StatusSeeOther))

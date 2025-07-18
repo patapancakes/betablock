@@ -18,6 +18,7 @@
 			<a href="/setskin">Set Skin</a>
 			<a href="/setcape">Set Cape</a>
 			<a href="/setversion">Set Version</a>
+			<a href="/delaccount">Delete Account</a>
 		</div>
 		<hr>
 		<h1>{{.Header}}</h1>
@@ -27,5 +28,6 @@
 			{{if eq .Page "setskin"}}{{template "setskin" .}}{{end}} 
 			{{if eq .Page "setcape"}}{{template "setcape" .}}{{end}}
 			{{if eq .Page "setversion"}}{{template "setversion" .}}{{end}}
+			{{if eq .Page "delaccount"}}{{template "delaccount" .}}{{end}}
 	</body>
 </html>
