@@ -69,6 +69,7 @@ func main() {
 	http.HandleFunc("POST /game/getversion.jsp", login.Login) // legacy login
 
 	// login
+	http.Handle("GET login.betablock.net/", http.RedirectHandler("https://betablock.net", http.StatusSeeOther))
 	http.HandleFunc("POST login.betablock.net/", login.Login)
 	http.HandleFunc("GET login.betablock.net/session", login.Session)
 
