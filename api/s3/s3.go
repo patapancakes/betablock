@@ -20,6 +20,7 @@ package s3
 
 import (
 	"archive/zip"
+	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -137,13 +138,14 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		p, err := patcher.NewPatcher(zr)
+		patched := new(bytes.Buffer)
+		err = patcher.New(zr).Write(patched)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to patch client: %s", err), http.StatusInternalServerError)
 			return
 		}
 
-		of = p
+		of = patched
 	default: // normal file download
 		f, err := os.Open(path)
 		if err != nil {

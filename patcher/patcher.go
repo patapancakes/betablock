@@ -20,40 +20,41 @@ package patcher
 
 import (
 	"archive/zip"
-	"bufio"
-	"bytes"
-	"fmt"
 	"io"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
+
+	"github.com/icholy/replace"
 )
 
-func NewPatcher(zr *zip.Reader) (io.Reader, error) {
-	ozb := new(bytes.Buffer) // output zip buffer
+type Patcher struct {
+	zip *zip.Reader
+}
 
-	zw := zip.NewWriter(ozb)
+func New(zr *zip.Reader) *Patcher {
+	return &Patcher{zip: zr}
+}
 
-	for _, f := range zr.File {
-		// create directories, doesn't seem to get used
+func (p *Patcher) Write(out io.Writer) error {
+	zw := zip.NewWriter(out)
+	defer zw.Close()
+
+	for _, f := range p.zip.File {
+		// directories are automatically created
 		if f.FileInfo().IsDir() {
-			_, err := zw.Create(f.Name)
-			if err != nil {
-				return nil, err
-			}
+			continue
 		}
 
 		fr, err := f.Open()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		fb := new(bytes.Buffer)
+		defer fr.Close()
 
-		_, err = io.Copy(fb, fr)
-		if err != nil {
-			return nil, err
-		}
+		var body io.Reader = fr
 
 		switch {
 		case strings.HasPrefix(f.Name, "META-INF/"):
@@ -62,52 +63,25 @@ func NewPatcher(zr *zip.Reader) (io.Reader, error) {
 				continue
 			}
 
-			scanner := bufio.NewScanner(bytes.NewReader(fb.Bytes()))
-
-			fb.Reset()
-
-			for scanner.Scan() {
-				if strings.HasPrefix(scanner.Text(), "SHA1-Digest") {
-					continue
-				}
-
-				fmt.Fprintln(fb, scanner.Text())
-			}
+			body = replace.Chain(body, replace.Regexp(regexp.MustCompile("SHA1-Digest: (.*)"), nil))
 		case filepath.Ext(f.Name) == ".class":
-			// replace minecraft.net
-			rep := bytes.ReplaceAll(fb.Bytes(), []byte("minecraft.net"), []byte("betablock.net"))
-
-			// replace s3.amazonaws.com
-			rep = bytes.ReplaceAll(rep, []byte("s3.amazonaws.com"), []byte("s3.betablock.net"))
-
-			// replace directory name in getWorkingDirectory call
-			if bytes.Contains(rep, []byte("user.home")) {
-				rep = bytes.ReplaceAll(rep, append([]byte{0x01, 0x00, 0x09}, []byte("minecraft")...), append([]byte{0x01, 0x00, 0x09}, []byte("betablock")...))
-			}
-
-			fb.Reset()
-
-			_, err = fb.Write(rep)
-			if err != nil {
-				return nil, err
-			}
+			body = replace.Chain(body,
+				replace.String("minecraft.net", "betablock.net"),       // replace minecraft.net
+				replace.String("s3.amazonaws.com", "s3.betablock.net"), // replace s3.amazonaws.com
+				replace.Bytes(append([]byte{0x01, 0x00, 0x09}, []byte("minecraft")...), append([]byte{0x01, 0x00, 0x09}, []byte("betablock")...)), // replace directory name
+			)
 		}
 
 		fw, err := zw.Create(f.Name)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		_, err = io.Copy(fw, fb)
+		_, err = io.Copy(fw, body)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	err := zw.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	return ozb, nil
+	return nil
 }
