@@ -62,7 +62,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.InsertAccount(username, password)
+	err = db.InsertAccount(r.Context(), username, password)
 	if err != nil {
 		Error(w, ad, "An error occured while creating the account (username taken?)")
 		return

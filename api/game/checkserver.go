@@ -33,7 +33,7 @@ func CheckServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sid, err := db.GetUserServerID(r.URL.Query().Get("user"))
+	sid, err := db.GetUserServerID(r.Context(), r.URL.Query().Get("user"))
 	if err != nil {
 		fmt.Fprint(w, "NO")
 		return

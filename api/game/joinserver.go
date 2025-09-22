@@ -39,7 +39,7 @@ func JoinServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, err := db.GetUsernameFromSession(sessionId)
+	username, err := db.GetUsernameFromSession(r.Context(), sessionId)
 	if err != nil {
 		http.Error(w, "Bad login", http.StatusOK)
 		return
@@ -49,7 +49,7 @@ func JoinServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.SetUserServerID(username, serverId)
+	err = db.SetUserServerID(r.Context(), username, serverId)
 	if err != nil {
 		http.Error(w, "Bad response", http.StatusBadRequest)
 		return

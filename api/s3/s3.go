@@ -102,7 +102,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		username, err := db.GetUsernameFromTicket(ticket)
+		username, err := db.GetUsernameFromTicket(r.Context(), ticket)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to validate ticket: %s", err), http.StatusBadRequest)
 			return
@@ -113,7 +113,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		version, err := db.GetUserClientVersion(username)
+		version, err := db.GetUserClientVersion(r.Context(), username)
 		if err != nil {
 			version = "b1.7.3"
 		}

@@ -37,14 +37,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, err := db.GetCanonicalUsername(r.PostForm.Get("user"))
+	username, err := db.GetCanonicalUsername(r.Context(), r.PostForm.Get("user"))
 	if err != nil {
 		http.Error(w, "Bad login", http.StatusOK)
 		return
 	}
 
 	// password
-	err = db.ValidatePassword(username, r.PostForm.Get("password"))
+	err = db.ValidatePassword(r.Context(), username, r.PostForm.Get("password"))
 	if err != nil {
 		http.Error(w, "Bad login", http.StatusOK)
 		return
@@ -58,7 +58,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.InsertTicket(username, ticket)
+	err = db.InsertTicket(r.Context(), username, ticket)
 	if err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
@@ -72,14 +72,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.InsertSession(username, session)
+	err = db.InsertSession(r.Context(), username, session)
 	if err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
 
 	// latest version
-	latestVersion, err := db.GetUserClientVersionChanged(username)
+	latestVersion, err := db.GetUserClientVersionChanged(r.Context(), username)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Server error", http.StatusInternalServerError)
@@ -99,7 +99,7 @@ func Session(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, err := db.GetUsernameFromSession(session)
+	username, err := db.GetUsernameFromSession(r.Context(), session)
 	if err != nil {
 		http.Error(w, "Bad login", http.StatusOK)
 		return

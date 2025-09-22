@@ -19,19 +19,20 @@
 package db
 
 import (
+	"context"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 // account
-func InsertAccount(username string, password string) error {
+func InsertAccount(ctx context.Context, username string, password string) error {
 	digest, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	_, err = conn.Exec("INSERT INTO accounts (username, password) VALUES (?, ?)", username, digest)
+	_, err = conn.ExecContext(ctx, "INSERT INTO accounts (username, password) VALUES (?, ?)", username, digest)
 	if err != nil {
 		return err
 	}
@@ -39,8 +40,8 @@ func InsertAccount(username string, password string) error {
 	return nil
 }
 
-func DeleteAccount(username string) error {
-	_, err := conn.Exec("DELETE FROM accounts WHERE username = ?", username)
+func DeleteAccount(ctx context.Context, username string) error {
+	_, err := conn.ExecContext(ctx, "DELETE FROM accounts WHERE username = ?", username)
 	if err != nil {
 		return err
 	}
@@ -48,9 +49,9 @@ func DeleteAccount(username string) error {
 	return nil
 }
 
-func ValidatePassword(username string, password string) error {
+func ValidatePassword(ctx context.Context, username string, password string) error {
 	var stored []byte
-	err := conn.QueryRow("SELECT password FROM accounts WHERE username = ?", username).Scan(&stored)
+	err := conn.QueryRowContext(ctx, "SELECT password FROM accounts WHERE username = ?", username).Scan(&stored)
 	if err != nil {
 		return err
 	}
@@ -63,9 +64,9 @@ func ValidatePassword(username string, password string) error {
 	return nil
 }
 
-func GetCanonicalUsername(username string) (string, error) {
+func GetCanonicalUsername(ctx context.Context, username string) (string, error) {
 	var canonical string
-	err := conn.QueryRow("SELECT username FROM accounts WHERE username = ?", username).Scan(&canonical)
+	err := conn.QueryRowContext(ctx, "SELECT username FROM accounts WHERE username = ?", username).Scan(&canonical)
 	if err != nil {
 		return "", err
 	}
@@ -74,8 +75,8 @@ func GetCanonicalUsername(username string) (string, error) {
 }
 
 // session
-func InsertSession(username string, session []byte) error {
-	_, err := conn.Exec("REPLACE INTO sessions (username, session) VALUES (?, ?)", username, session)
+func InsertSession(ctx context.Context, username string, session []byte) error {
+	_, err := conn.ExecContext(ctx, "REPLACE INTO sessions (username, session) VALUES (?, ?)", username, session)
 	if err != nil {
 		return err
 	}
@@ -83,9 +84,9 @@ func InsertSession(username string, session []byte) error {
 	return nil
 }
 
-func GetUsernameFromSession(session []byte) (string, error) {
+func GetUsernameFromSession(ctx context.Context, session []byte) (string, error) {
 	var username string
-	err := conn.QueryRow("SELECT username FROM sessions WHERE session = ?", session).Scan(&username)
+	err := conn.QueryRowContext(ctx, "SELECT username FROM sessions WHERE session = ?", session).Scan(&username)
 	if err != nil {
 		return "", err
 	}
@@ -94,8 +95,8 @@ func GetUsernameFromSession(session []byte) (string, error) {
 }
 
 // ticket
-func InsertTicket(username string, ticket []byte) error {
-	_, err := conn.Exec("REPLACE INTO tickets (username, ticket) VALUES (?, ?)", username, ticket)
+func InsertTicket(ctx context.Context, username string, ticket []byte) error {
+	_, err := conn.ExecContext(ctx, "REPLACE INTO tickets (username, ticket) VALUES (?, ?)", username, ticket)
 	if err != nil {
 		return err
 	}
@@ -103,9 +104,9 @@ func InsertTicket(username string, ticket []byte) error {
 	return nil
 }
 
-func GetUsernameFromTicket(ticket []byte) (string, error) {
+func GetUsernameFromTicket(ctx context.Context, ticket []byte) (string, error) {
 	var username string
-	err := conn.QueryRow("SELECT username FROM tickets WHERE ticket = ?", ticket).Scan(&username)
+	err := conn.QueryRowContext(ctx, "SELECT username FROM tickets WHERE ticket = ?", ticket).Scan(&username)
 	if err != nil {
 		return "", err
 	}
@@ -114,8 +115,8 @@ func GetUsernameFromTicket(ticket []byte) (string, error) {
 }
 
 // server id
-func SetUserServerID(username string, sid []byte) error {
-	_, err := conn.Exec("REPLACE INTO players (username, server) VALUES (?, ?)", username, sid)
+func SetUserServerID(ctx context.Context, username string, sid []byte) error {
+	_, err := conn.ExecContext(ctx, "REPLACE INTO players (username, server) VALUES (?, ?)", username, sid)
 	if err != nil {
 		return err
 	}
@@ -123,9 +124,9 @@ func SetUserServerID(username string, sid []byte) error {
 	return nil
 }
 
-func GetUserServerID(username string) ([]byte, error) {
+func GetUserServerID(ctx context.Context, username string) ([]byte, error) {
 	var sid []byte
-	err := conn.QueryRow("SELECT server FROM players WHERE username = ?", username).Scan(&sid)
+	err := conn.QueryRowContext(ctx, "SELECT server FROM players WHERE username = ?", username).Scan(&sid)
 	if err != nil {
 		return nil, err
 	}
@@ -134,9 +135,9 @@ func GetUserServerID(username string) ([]byte, error) {
 }
 
 // version
-func GetUserClientVersion(username string) (string, error) {
+func GetUserClientVersion(ctx context.Context, username string) (string, error) {
 	var version string
-	err := conn.QueryRow("SELECT version FROM versions WHERE username = ?", username).Scan(&version)
+	err := conn.QueryRowContext(ctx, "SELECT version FROM versions WHERE username = ?", username).Scan(&version)
 	if err != nil {
 		return "", err
 	}
@@ -144,9 +145,9 @@ func GetUserClientVersion(username string) (string, error) {
 	return version, nil
 }
 
-func GetUserClientVersionChanged(username string) (time.Time, error) {
+func GetUserClientVersionChanged(ctx context.Context, username string) (time.Time, error) {
 	var changed time.Time
-	err := conn.QueryRow("SELECT changed FROM versions WHERE username = ?", username).Scan(&changed)
+	err := conn.QueryRowContext(ctx, "SELECT changed FROM versions WHERE username = ?", username).Scan(&changed)
 	if err != nil {
 		return time.Now(), err
 	}
@@ -154,8 +155,8 @@ func GetUserClientVersionChanged(username string) (time.Time, error) {
 	return changed, nil
 }
 
-func SetUserClientVersion(username string, version string) error {
-	_, err := conn.Exec("REPLACE INTO versions (username, version) VALUES (?, ?)", username, version)
+func SetUserClientVersion(ctx context.Context, username string, version string) error {
+	_, err := conn.ExecContext(ctx, "REPLACE INTO versions (username, version) VALUES (?, ?)", username, version)
 	if err != nil {
 		return err
 	}

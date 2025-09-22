@@ -60,7 +60,7 @@ func SetCosmetic(w http.ResponseWriter, r *http.Request) {
 	// validate username and password
 	username := r.PostFormValue("username")
 
-	err = db.ValidatePassword(username, r.PostFormValue("password"))
+	err = db.ValidatePassword(r.Context(), username, r.PostFormValue("password"))
 	if err != nil {
 		var reason string
 		switch err {

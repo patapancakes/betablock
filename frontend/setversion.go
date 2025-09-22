@@ -74,7 +74,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 	// validate username and password
 	username := r.PostFormValue("username")
 
-	err = db.ValidatePassword(username, r.PostFormValue("password"))
+	err = db.ValidatePassword(r.Context(), username, r.PostFormValue("password"))
 	if err != nil {
 		var reason string
 		switch err {
@@ -96,7 +96,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.SetUserClientVersion(username, version)
+	err = db.SetUserClientVersion(r.Context(), username, version)
 	if err != nil {
 		Error(w, ad, "An unknown error occured while setting the version")
 		return
