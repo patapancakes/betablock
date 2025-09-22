@@ -1,9 +1,5 @@
 {{define "setversion"}}
 <form action="/setversion" method="post">
-	<label for="username">Username</label>
-	<input type="text" name="username" placeholder="Username" minlength="3" maxlength="16" required>
-	<label for="password">Password</label>
-	<input type="password" name="password" placeholder="Password" minlength="6" maxlength="72" required>
 	<label for="version">Game Version</label>
 	<select name="version" required>{{range .Versions}}
 		<option value="{{.}}">{{.}}</option>{{end}}

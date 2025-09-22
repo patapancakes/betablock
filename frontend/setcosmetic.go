@@ -19,16 +19,11 @@
 package frontend
 
 import (
-	"database/sql"
 	"fmt"
 	"image/png"
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/patapancakes/betablock/db"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func SetCosmetic(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +34,19 @@ func SetCosmetic(w http.ResponseWriter, r *http.Request) {
 		ad.Header = "Set Cape"
 		ad.Page = "setcape"
 	}
+
+	username, err := UsernameFromRequest(r)
+	if err != nil {
+		if err == http.ErrNoCookie {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		http.Redirect(w, r, "/logout", http.StatusSeeOther)
+		return
+	}
+
+	ad.Username = username
 
 	if r.Method == "GET" {
 		err := t.Execute(w, ad)
@@ -51,28 +59,9 @@ func SetCosmetic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse form data
-	err := r.ParseMultipartForm(maxUploadSize)
+	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
 		Error(w, ad, "An error occured while parsing your request")
-		return
-	}
-
-	// validate username and password
-	username := r.PostFormValue("username")
-
-	err = db.ValidatePassword(r.Context(), username, r.PostFormValue("password"))
-	if err != nil {
-		var reason string
-		switch err {
-		case sql.ErrNoRows:
-			reason = "The specified user doesn't exist"
-		case bcrypt.ErrMismatchedHashAndPassword:
-			reason = "The password is incorrect"
-		default:
-			reason = "An unknown error occured during account validation"
-		}
-
-		Error(w, ad, reason)
 		return
 	}
 

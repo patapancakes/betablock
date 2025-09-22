@@ -19,8 +19,11 @@
 package frontend
 
 import (
+	"encoding/base64"
 	"html/template"
 	"net/http"
+
+	"github.com/patapancakes/betablock/db"
 )
 
 type ActionData struct {
@@ -28,6 +31,8 @@ type ActionData struct {
 	Header  string
 	Error   string
 	Success bool
+
+	Username string
 
 	Versions []string
 }
@@ -44,4 +49,21 @@ func Error(w http.ResponseWriter, ad ActionData, reason string) error {
 	}
 
 	return nil
+}
+
+func UsernameFromRequest(r *http.Request) (string, error) {
+	sessionCookie, err := r.Cookie("session")
+	if err != nil {
+		return "", err
+	}
+	session, err := base64.StdEncoding.DecodeString(sessionCookie.Value)
+	if err != nil {
+		return "", err
+	}
+	username, err := db.GetUsernameFromSession(r.Context(), session)
+	if err != nil {
+		return "", err
+	}
+
+	return username, nil
 }

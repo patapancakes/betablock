@@ -14,20 +14,24 @@
 	</head>
 	<body>
 		<div id="nav">
-			<a href="/register">Register</a>
+			{{if eq .Username ""}}<a href="/register">Register</a>
+			<a href="/login">Login</a>{{else}}
 			<a href="/setskin">Set Skin</a>
 			<a href="/setcape">Set Cape</a>
 			<a href="/setversion">Set Version</a>
-			<a href="/delaccount">Delete Account</a>
+			<div style="float: right;">
+				{{.Username}}
+				<a href="/logout">Logout</a>
+			</div>{{end}}
 		</div>
 		<hr>
 		<h1>{{.Header}}</h1>
 			{{if .Success}}<h2>Success!</h2>{{end}}
 			{{if ne .Error ""}}<h2>{{.Error}}</h2>{{end}}
 			{{if eq .Page "register"}}{{template "register" .}}{{end}}
+			{{if eq .Page "login"}}{{template "login" .}}{{end}}
 			{{if eq .Page "setskin"}}{{template "setskin" .}}{{end}} 
 			{{if eq .Page "setcape"}}{{template "setcape" .}}{{end}}
 			{{if eq .Page "setversion"}}{{template "setversion" .}}{{end}}
-			{{if eq .Page "delaccount"}}{{template "delaccount" .}}{{end}}
 	</body>
 </html>

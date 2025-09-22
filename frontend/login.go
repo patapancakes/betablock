@@ -1,35 +1,26 @@
-/*
-	betablock - block server emulator
-	Copyright (C) 2025  Pancakes <patapancakes@pagefault.games>
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Affero General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Affero General Public License for more details.
-
-	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 package frontend
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 
 	"github.com/patapancakes/betablock/db"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
-func DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	ad := ActionData{Header: "Delete Account", Page: "delaccount"}
+func Login(w http.ResponseWriter, r *http.Request) {
+	ad := ActionData{Header: "Login", Page: "login"}
+
+	username, err := UsernameFromRequest(r)
+	if err != nil && err != http.ErrNoCookie {
+		http.Redirect(w, r, "/logout", http.StatusSeeOther)
+		return
+	}
+
+	ad.Username = username
 
 	if r.Method == "GET" {
 		err := t.Execute(w, ad)
@@ -41,14 +32,14 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := r.ParseForm()
+	err = r.ParseForm()
 	if err != nil {
 		Error(w, ad, "An error occured while parsing your request")
 		return
 	}
 
 	// validate username and password
-	username := r.PostFormValue("username")
+	username = r.PostFormValue("username")
 
 	err = db.ValidatePassword(r.Context(), username, r.PostFormValue("password"))
 	if err != nil {
@@ -66,13 +57,28 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.DeleteAccount(r.Context(), username)
+	session := make([]byte, 16)
+	_, err = rand.Read(session)
 	if err != nil {
-		Error(w, ad, "An error occured while deleting the account")
+		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
 
+	err = db.InsertSession(r.Context(), username, session)
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session",
+		Value:    base64.StdEncoding.EncodeToString(session),
+		MaxAge:   60 * 60 * 24 * 7,
+		HttpOnly: true,
+	})
+
 	ad.Success = true
+	ad.Username = username
 
 	err = t.Execute(w, ad)
 	if err != nil {

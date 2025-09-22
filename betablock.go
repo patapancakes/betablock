@@ -54,10 +54,11 @@ func main() {
 	}
 
 	http.HandleFunc("/register", frontend.Register)
+	http.HandleFunc("/login", frontend.Login)
+	http.HandleFunc("/logout", frontend.Logout)
 	http.HandleFunc("/setskin", frontend.SetCosmetic)
 	http.HandleFunc("/setcape", frontend.SetCosmetic)
 	http.HandleFunc("/setversion", frontend.SetVersion)
-	http.HandleFunc("/delaccount", frontend.DeleteAccount)
 
 	// action
 	http.Handle("/", http.RedirectHandler("/register", http.StatusSeeOther))

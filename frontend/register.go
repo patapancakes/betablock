@@ -32,6 +32,14 @@ var isValidUsername = regexp.MustCompile("^[A-Za-z0-9_]{3,16}$").MatchString
 func Register(w http.ResponseWriter, r *http.Request) {
 	ad := ActionData{Header: "Register", Page: "register"}
 
+	username, err := UsernameFromRequest(r)
+	if err != nil && err != http.ErrNoCookie {
+		http.Redirect(w, r, "/logout", http.StatusSeeOther)
+		return
+	}
+
+	ad.Username = username
+
 	// show register page
 	if r.Method == "GET" {
 		err := t.Execute(w, ad)
@@ -44,13 +52,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// try to register, show success page if ok
-	err := r.ParseForm()
+	err = r.ParseForm()
 	if err != nil {
 		Error(w, ad, "An error occured while parsing your request")
 		return
 	}
 
-	username := strings.TrimSpace(r.PostForm.Get("username"))
+	username = strings.TrimSpace(r.PostForm.Get("username"))
 	if !isValidUsername(username) {
 		Error(w, ad, "The username specified is invalid")
 		return
@@ -69,6 +77,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ad.Success = true
+	ad.Username = username
 
 	err = t.Execute(w, ad)
 	if err != nil {
