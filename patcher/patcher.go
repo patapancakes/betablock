@@ -20,7 +20,9 @@ package patcher
 
 import (
 	"archive/zip"
+	"bytes"
 	"io"
+	"net/http"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -70,6 +72,21 @@ func (p *Patcher) Write(out io.Writer) error {
 				replace.String("s3.amazonaws.com", "s3.betablock.net"), // replace s3.amazonaws.com
 				replace.Bytes(append([]byte{0x01, 0x00, 0x09}, []byte("minecraft")...), append([]byte{0x01, 0x00, 0x09}, []byte("betablock")...)), // replace directory name
 			)
+		case filepath.Base(f.Name) == "minecraft.key":
+			host := "login.betablock.net"
+			resp, err := http.Get("https://" + host + "/session")
+			if err != nil {
+				continue
+			}
+
+			for _, cert := range resp.TLS.PeerCertificates {
+				if cert.Subject.CommonName != host && !slices.Contains(cert.DNSNames, host) {
+					continue
+				}
+
+				body = bytes.NewReader(cert.RawSubjectPublicKeyInfo)
+				break
+			}
 		}
 
 		fw, err := zw.Create(f.Name)
