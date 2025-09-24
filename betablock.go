@@ -59,6 +59,7 @@ func main() {
 	http.HandleFunc("/setskin", frontend.SetCosmetic)
 	http.HandleFunc("/setcape", frontend.SetCosmetic)
 	http.HandleFunc("/setversion", frontend.SetVersion)
+	http.HandleFunc("/changepw", frontend.ChangePW)
 
 	// action
 	http.Handle("/", http.RedirectHandler("/register", http.StatusSeeOther))

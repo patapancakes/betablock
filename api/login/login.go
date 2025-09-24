@@ -31,20 +31,14 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, "Bad response", http.StatusBadRequest)
-		return
-	}
-
-	username, err := db.GetCanonicalUsername(r.Context(), r.PostForm.Get("user"))
+	username, err := db.GetCanonicalUsername(r.Context(), r.PostFormValue("user"))
 	if err != nil {
 		http.Error(w, "Bad login", http.StatusOK)
 		return
 	}
 
 	// password
-	err = db.ValidatePassword(r.Context(), username, r.PostForm.Get("password"))
+	err = db.ValidatePassword(r.Context(), username, r.PostFormValue("password"))
 	if err != nil {
 		http.Error(w, "Bad login", http.StatusOK)
 		return

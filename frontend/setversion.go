@@ -75,13 +75,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = r.ParseForm()
-	if err != nil {
-		Error(w, ad, "An error occured while parsing your request")
-		return
-	}
-
-	version := r.PostForm.Get("version")
+	version := r.PostFormValue("version")
 	if !slices.Contains(versions, version) {
 		Error(w, ad, "The specified version isn't available")
 		return

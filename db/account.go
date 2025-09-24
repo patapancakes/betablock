@@ -64,6 +64,20 @@ func ValidatePassword(ctx context.Context, username string, password string) err
 	return nil
 }
 
+func UpdatePassword(ctx context.Context, username string, password string) error {
+	digest, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.ExecContext(ctx, "UPDATE accounts SET password = ? WHERE username = ?", digest, username)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetCanonicalUsername(ctx context.Context, username string) (string, error) {
 	var canonical string
 	err := conn.QueryRowContext(ctx, "SELECT username FROM accounts WHERE username = ?", username).Scan(&canonical)

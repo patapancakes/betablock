@@ -1,0 +1,9 @@
+{{define "changepw"}}
+<form action="/changepw" method="post">
+	<label for="password">Old Password</label>
+	<input type="password" name="password" placeholder="Old Password" minlength="6" maxlength="72" required>
+	<label for="newpassword">New Password (at least 6 characters)</label>
+	<input type="password" name="newpassword" placeholder="New Password" minlength="6" maxlength="72" required>
+	<input type="submit" value="Submit">
+</form>
+{{end}}

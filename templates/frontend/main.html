@@ -19,6 +19,7 @@
 			<a href="/setskin">Set Skin</a>
 			<a href="/setcape">Set Cape</a>
 			<a href="/setversion">Set Version</a>
+			<a href="/changepw">Change Password</a>
 			<div style="float: right;">
 				{{.Username}}
 				<a href="/logout">Logout</a>
@@ -33,5 +34,6 @@
 			{{if eq .Page "setskin"}}{{template "setskin" .}}{{end}} 
 			{{if eq .Page "setcape"}}{{template "setcape" .}}{{end}}
 			{{if eq .Page "setversion"}}{{template "setversion" .}}{{end}}
+			{{if eq .Page "changepw"}}{{template "changepw" .}}{{end}}
 	</body>
 </html>

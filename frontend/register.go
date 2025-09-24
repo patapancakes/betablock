@@ -52,19 +52,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// try to register, show success page if ok
-	err = r.ParseForm()
-	if err != nil {
-		Error(w, ad, "An error occured while parsing your request")
-		return
-	}
-
-	username = strings.TrimSpace(r.PostForm.Get("username"))
+	username = strings.TrimSpace(r.PostFormValue("username"))
 	if !isValidUsername(username) {
 		Error(w, ad, "The username specified is invalid")
 		return
 	}
 
-	password := strings.TrimSpace(r.PostForm.Get("password"))
+	password := strings.TrimSpace(r.PostFormValue("password"))
 	if len(password) > 72 {
 		Error(w, ad, "The password specified is too long")
 		return

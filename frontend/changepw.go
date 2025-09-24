@@ -1,9 +1,7 @@
 package frontend
 
 import (
-	"crypto/rand"
 	"database/sql"
-	"encoding/base64"
 	"fmt"
 	"net/http"
 
@@ -11,11 +9,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	ad := ActionData{Header: "Login", Page: "login"}
+func ChangePW(w http.ResponseWriter, r *http.Request) {
+	ad := ActionData{Header: "Change Password", Page: "changepw"}
 
 	username, err := UsernameFromRequest(r)
-	if err != nil && err != http.ErrNoCookie {
+	if err != nil {
+		if err == http.ErrNoCookie {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
 		http.Redirect(w, r, "/logout", http.StatusSeeOther)
 		return
 	}
@@ -33,9 +36,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// validate username and password
-	username = r.PostFormValue("username")
-
-	err = db.ValidatePassword(r.Context(), username, r.PostFormValue("password"))
+	err = db.ValidatePassword(r.Context(), ad.Username, r.PostFormValue("password"))
 	if err != nil {
 		var reason string
 		switch err {
@@ -51,25 +52,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session := make([]byte, 16)
-	_, err = rand.Read(session)
+	err = db.UpdatePassword(r.Context(), username, r.PostFormValue("newpassword"))
 	if err != nil {
 		http.Error(w, "Server error", http.StatusInternalServerError)
 		return
 	}
-
-	err = db.InsertSession(r.Context(), username, session)
-	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
-		return
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session",
-		Value:    base64.StdEncoding.EncodeToString(session),
-		MaxAge:   60 * 60 * 24 * 7,
-		HttpOnly: true,
-	})
 
 	ad.Success = true
 	ad.Username = username
