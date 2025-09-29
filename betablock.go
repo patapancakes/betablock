@@ -20,9 +20,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"os"
 
 	"github.com/patapancakes/betablock/api/login"
 	"github.com/patapancakes/betablock/api/s3"
@@ -36,8 +37,8 @@ import (
 
 func main() {
 	// webserver related
-	ip := flag.String("ip", "127.0.0.1", "ip to listen on")
-	port := flag.Int("port", 80, "port to listen on")
+	proto := flag.String("proto", "tcp", "proto for web server")
+	addr := flag.String("addr", "127.0.0.1:80", "address for web server")
 
 	// database related
 	dbuser := flag.String("dbuser", "betablock", "database user's name")
@@ -83,5 +84,26 @@ func main() {
 	http.Handle("GET /skin/", http.StripPrefix("/skin/", http.FileServer(http.Dir("public/MinecraftSkins"))))
 
 	// http stuff
-	http.ListenAndServe(fmt.Sprintf("%s:%d", *ip, *port), nil)
+	if *proto == "unix" {
+		err = os.Remove(*addr)
+		if err != nil && !os.IsNotExist(err) {
+			log.Fatalf("failed to delete unix socket: %s", err)
+		}
+	}
+
+	l, err := net.Listen(*proto, *addr)
+	if err != nil {
+		log.Fatalf("failed to create web server listener: %s", err)
+	}
+
+	defer l.Close()
+
+	if *proto == "unix" {
+		err = os.Chmod(*addr, 0777)
+		if err != nil {
+			log.Fatalf("failed to set unix socket permissions: %s", err)
+		}
+	}
+
+	http.Serve(l, nil)
 }
