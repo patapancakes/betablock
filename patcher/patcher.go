@@ -68,7 +68,7 @@ func (p *Patcher) Write(out io.Writer) error {
 			body = replace.Chain(body, replace.Regexp(regexp.MustCompile("SHA1-Digest: (.*)"), nil))
 		case filepath.Ext(f.Name) == ".class":
 			body = replace.Chain(body,
-				replace.String("minecraft.net", "betablock.net"),       // replace minecraft.net
+				replace.String("www.minecraft.net", "betablock.net"),   // replace www.minecraft.net
 				replace.String("s3.amazonaws.com", "s3.betablock.net"), // replace s3.amazonaws.com
 				replace.Bytes(append([]byte{0x01, 0x00, 0x09}, []byte("minecraft")...), append([]byte{0x01, 0x00, 0x09}, []byte("betablock")...)), // replace directory name
 			)
