@@ -21,6 +21,7 @@ package patcher
 import (
 	"archive/zip"
 	"bytes"
+	"encoding/binary"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -29,6 +30,14 @@ import (
 	"strings"
 
 	"github.com/icholy/replace"
+)
+
+const (
+	host = "betablock.net"
+
+	wwwHost = "www." + host
+	loginHost = "login." + host
+	s3Host = "s3." + host
 )
 
 type Patcher struct {
@@ -68,13 +77,34 @@ func (p *Patcher) Write(out io.Writer) error {
 			body = replace.Chain(body, replace.Regexp(regexp.MustCompile("SHA1-Digest: (.*)"), nil))
 		case filepath.Ext(f.Name) == ".class":
 			body = replace.Chain(body,
-				replace.String("www.minecraft.net", "betablock.net"),   // replace www.minecraft.net
-				replace.String("s3.amazonaws.com", "s3.betablock.net"), // replace s3.amazonaws.com
-				replace.Bytes(append([]byte{0x01, 0x00, 0x09}, []byte("minecraft")...), append([]byte{0x01, 0x00, 0x09}, []byte("betablock")...)), // replace directory name
+				// client
+				replace.Bytes(strb("http://login.minecraft.net/session?name="), strb("http://" + loginHost + "/session?name=")),
+				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("http://" + wwwHost + "/game/joinserver.jsp?user=")),
+
+				// legacy client
+				replace.Bytes(strb("http://www.minecraft.net/resources/"), strb("http://" + wwwHost + "/resources/")),
+				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("http://" + wwwHost + "/skin/")),
+
+				// client resources
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("http://" + s3Host + "/MinecraftSkins/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftCloaks/"), strb("http://" + s3Host + "/MinecraftCloaks/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftResources/"), strb("http://" + s3Host + "/MinecraftResources/")),
+
+				// server
+				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("http://" + wwwHost + "/game/checkserver.jsp?user=")),
+
+				// launcher
+				replace.Bytes(strb("https://login.minecraft.net/"), strb("https://" + loginHost + "/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("http://" + s3Host + "/MinecraftDownload/")),
+				
+				// legacy launcher
+				replace.Bytes(strb("http://www.minecraft.net/game/getversion.jsp"), strb("http://" + wwwHost + "/game/getversion.jsp")),
+
+				// launcher + client
+				replace.Bytes(strb("minecraft"), strb("betablock")), // replace directory name
 			)
 		case filepath.Base(f.Name) == "minecraft.key":
-			host := "login.betablock.net"
-			resp, err := http.Get("https://" + host + "/session")
+			resp, err := http.Get("https://" + loginHost + "/session")
 			if err != nil {
 				continue
 			}
@@ -101,4 +131,14 @@ func (p *Patcher) Write(out io.Writer) error {
 	}
 
 	return nil
+}
+
+func strb(s string) []byte {
+	buf := new(bytes.Buffer)
+
+	binary.Write(buf, binary.BigEndian, uint8(1))
+	binary.Write(buf, binary.BigEndian, uint16(len(s)))
+	buf.WriteString(s)
+
+	return buf.Bytes()
 }
