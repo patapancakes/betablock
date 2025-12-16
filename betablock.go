@@ -80,7 +80,7 @@ func main() {
 	http.HandleFunc("s3.betablock.net/", s3.Handle)
 
 	// legacy assets
-	http.Handle("GET /resources/", http.StripPrefix("/resources/", http.FileServer(http.Dir("public/MinecraftResources"))))
+	http.HandleFunc("GET /resources/", s3.HandleLegacy)
 	http.Handle("GET /skin/", http.StripPrefix("/skin/", http.FileServer(http.Dir("public/MinecraftSkins"))))
 
 	// http stuff
