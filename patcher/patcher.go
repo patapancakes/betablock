@@ -35,9 +35,9 @@ import (
 const (
 	host = "betablock.net"
 
-	wwwHost = "www." + host
+	wwwHost   = "www." + host
 	loginHost = "login." + host
-	s3Host = "s3." + host
+	s3Host    = "s3." + host
 )
 
 type Patcher struct {
@@ -78,27 +78,27 @@ func (p *Patcher) Write(out io.Writer) error {
 		case filepath.Ext(f.Name) == ".class":
 			body = replace.Chain(body,
 				// client
-				replace.Bytes(strb("http://login.minecraft.net/session?name="), strb("http://" + loginHost + "/session?name=")),
-				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("http://" + wwwHost + "/game/joinserver.jsp?user=")),
+				replace.Bytes(strb("http://login.minecraft.net/session?name="), strb("http://"+loginHost+"/session?name=")),
+				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("http://"+wwwHost+"/game/joinserver.jsp?user=")),
 
 				// legacy client
-				replace.Bytes(strb("http://www.minecraft.net/resources/"), strb("http://" + wwwHost + "/resources/")),
-				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("http://" + wwwHost + "/skin/")),
+				replace.Bytes(strb("http://www.minecraft.net/resources/"), strb("http://"+wwwHost+"/resources/")),
+				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("http://"+wwwHost+"/skin/")),
 
 				// client resources
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("http://" + s3Host + "/MinecraftSkins/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftCloaks/"), strb("http://" + s3Host + "/MinecraftCloaks/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftResources/"), strb("http://" + s3Host + "/MinecraftResources/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("http://"+s3Host+"/MinecraftSkins/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftCloaks/"), strb("http://"+s3Host+"/MinecraftCloaks/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftResources/"), strb("http://"+s3Host+"/MinecraftResources/")),
 
 				// server
-				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("http://" + wwwHost + "/game/checkserver.jsp?user=")),
+				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("http://"+wwwHost+"/game/checkserver.jsp?user=")),
 
 				// launcher
-				replace.Bytes(strb("https://login.minecraft.net/"), strb("https://" + loginHost + "/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("http://" + s3Host + "/MinecraftDownload/")),
-				
+				replace.Bytes(strb("https://login.minecraft.net/"), strb("https://"+loginHost+"/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("http://"+s3Host+"/MinecraftDownload/")),
+
 				// legacy launcher
-				replace.Bytes(strb("http://www.minecraft.net/game/getversion.jsp"), strb("http://" + wwwHost + "/game/getversion.jsp")),
+				replace.Bytes(strb("http://www.minecraft.net/game/getversion.jsp"), strb("http://"+wwwHost+"/game/getversion.jsp")),
 
 				// launcher + client
 				replace.Bytes(strb("minecraft"), strb("betablock")), // replace directory name

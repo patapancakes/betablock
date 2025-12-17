@@ -148,6 +148,15 @@ func GetUserServerID(ctx context.Context, username string) ([]byte, error) {
 	return sid, nil
 }
 
+func DeleteUserServerID(ctx context.Context, username string) error {
+	_, err := conn.ExecContext(ctx, "DELETE FROM players WHERE username = ?", username)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // version
 func GetUserClientVersion(ctx context.Context, username string) (string, error) {
 	var version string

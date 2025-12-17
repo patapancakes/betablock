@@ -33,7 +33,9 @@ func CheckServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sid, err := db.GetUserServerID(r.Context(), r.URL.Query().Get("user"))
+	username := r.URL.Query().Get("user")
+
+	sid, err := db.GetUserServerID(r.Context(), username)
 	if err != nil {
 		fmt.Fprint(w, "NO")
 		return
@@ -42,6 +44,8 @@ func CheckServer(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "NO")
 		return
 	}
+
+	db.DeleteUserServerID(r.Context(), username)
 
 	fmt.Fprint(w, "YES")
 }
