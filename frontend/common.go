@@ -33,6 +33,7 @@ type ActionData struct {
 	Success bool
 
 	Username string
+	Version  string
 
 	Versions []string
 }

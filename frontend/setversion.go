@@ -52,7 +52,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 
 	ad.Versions = versions
 
-	username, err := UsernameFromRequest(r)
+	ad.Username, err = UsernameFromRequest(r)
 	if err != nil {
 		if err == http.ErrNoCookie {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -63,7 +63,16 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ad.Username = username
+	ad.Version, err = db.GetUserClientVersion(r.Context(), ad.Username)
+	if err != nil {
+		if err == http.ErrNoCookie {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		http.Redirect(w, r, "/logout", http.StatusSeeOther)
+		return
+	}
 
 	if r.Method == "GET" {
 		err := t.Execute(w, ad)
@@ -81,7 +90,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.SetUserClientVersion(r.Context(), username, version)
+	err = db.SetUserClientVersion(r.Context(), ad.Username, version)
 	if err != nil {
 		Error(w, ad, "An unknown error occured while setting the version")
 		return

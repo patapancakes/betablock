@@ -2,7 +2,7 @@
 <form action="/setversion" method="post">
 	<label for="version">Game Version</label>
 	<select name="version" required>{{range .Versions}}
-		<option value="{{.}}">{{.}}</option>{{end}}
+		<option value="{{.}}"{{if eq . $.Version}}selected{{end}}>{{.}}</option>{{end}}
 	</select>
 	<input type="submit" value="Submit">
 </form>
