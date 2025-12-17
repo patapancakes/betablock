@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func HandleLegacy(w http.ResponseWriter, r *http.Request) {
+func HandleLegacyResources(w http.ResponseWriter, r *http.Request) {
 	path := filepath.Join("public/MinecraftResources", strings.TrimPrefix(r.URL.Path, "/resources/"))
 
 	s, err := os.Stat(path)
@@ -48,6 +48,23 @@ func HandleLegacy(w http.ResponseWriter, r *http.Request) {
 
 	// normal file download
 	f, err := os.Open(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	defer f.Close()
+
+	io.Copy(w, f)
+}
+
+func HandleLegacyCloak(w http.ResponseWriter, r *http.Request) {
+	f, err := os.Open(filepath.Join("public/MinecraftCloaks", r.URL.Query().Get("user")+".png"))
 	if err != nil {
 		if os.IsNotExist(err) {
 			w.WriteHeader(http.StatusNotFound)

@@ -84,6 +84,7 @@ func (p *Patcher) Write(out io.Writer) error {
 				// legacy client
 				replace.Bytes(strb("http://www.minecraft.net/resources/"), strb("http://"+wwwHost+"/resources/")),
 				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("http://"+wwwHost+"/skin/")),
+				replace.Bytes(strb("http://www.minecraft.net/cloak/get.jsp?user="), strb("http://"+wwwHost+"/cloak/get.jsp?user=")),
 
 				// client resources
 				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("http://"+s3Host+"/MinecraftSkins/")),
