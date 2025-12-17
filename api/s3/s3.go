@@ -25,8 +25,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -53,29 +55,14 @@ type IndexFile struct {
 }
 
 func Handle(w http.ResponseWriter, r *http.Request) {
-	path := filepath.Join("public/", r.URL.Path)
+	file := filepath.Join("public", r.URL.Path)
 
-	s, err := os.Stat(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// directory listing
-	if s.IsDir() {
-		if !slices.Contains([]string{"MinecraftDownload", "MinecraftResources"}, s.Name()) {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
+	// object list
+	if slices.Contains([]string{"/MinecraftDownload/", "/MinecraftResources/"}, r.URL.Path) {
 		var index Index
-		index.Name = s.Name()
-		index.Files, err = getFiles(path, path)
+		var err error
+		index.Name = path.Base(r.URL.Path)
+		index.Files, err = getFiles(file)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -147,7 +134,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 		of = patched
 	default: // normal file download
-		f, err := os.Open(path)
+		f, err := os.Open(file)
 		if err != nil {
 			if os.IsNotExist(err) {
 				w.WriteHeader(http.StatusNotFound)
@@ -159,6 +146,16 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		}
 
 		defer f.Close()
+
+		s, err := f.Stat()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if s.IsDir() {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 
 		of = f
 	}
@@ -181,46 +178,39 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func getFiles(base string, path string) ([]IndexFile, error) {
+func getFiles(base string) ([]IndexFile, error) {
 	var files []IndexFile
 
-	entries, err := os.ReadDir(path)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, e := range entries {
-		if e.IsDir() {
-			fs, err := getFiles(base, filepath.Join(path, e.Name()))
-			if err != nil {
-				return nil, err
-			}
-
-			files = append(files, fs...)
-			continue
-		}
-
-		fpath := filepath.Join(path, e.Name())
-
-		f, err := os.Open(fpath)
+	err := filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return nil, err
+			return err
 		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+
+		defer f.Close()
 
 		stat, err := f.Stat()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		hash := md5.New()
 		_, err = io.Copy(hash, f)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		rel, err := filepath.Rel(base, fpath)
+		rel, err := filepath.Rel(base, path)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		files = append(files, IndexFile{
@@ -229,6 +219,11 @@ func getFiles(base string, path string) ([]IndexFile, error) {
 			Hash:     hex.EncodeToString(hash.Sum(nil)),
 			Size:     int(stat.Size()),
 		})
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return files, nil

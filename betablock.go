@@ -24,6 +24,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path"
 
 	"github.com/patapancakes/betablock/api/login"
 	"github.com/patapancakes/betablock/api/s3"
@@ -81,8 +82,16 @@ func main() {
 
 	// legacy assets
 	http.HandleFunc("GET /resources/", s3.HandleLegacyResources)
-	http.HandleFunc("GET /cloak/get.jsp", s3.HandleLegacyCloak)
-	http.Handle("GET /skin/", http.StripPrefix("/skin/", http.FileServer(http.Dir("public/MinecraftSkins"))))
+
+	http.HandleFunc("GET /skin/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "//s3.betablock.bet/MinecraftSkins/"+path.Base(r.URL.Path), http.StatusMovedPermanently)
+	})
+	http.HandleFunc("GET /cloak/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "//s3.betablock.bet/MinecraftCloaks/"+path.Base(r.URL.Path), http.StatusMovedPermanently)
+	})
+	http.HandleFunc("GET /cloak/get.jsp", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "//s3.betablock.bet/MinecraftCloaks/"+r.URL.Query().Get("user")+".png", http.StatusMovedPermanently)
+	})
 
 	// http stuff
 	if *proto == "unix" {
