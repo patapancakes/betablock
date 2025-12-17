@@ -1,4 +1,5 @@
 {{define "setskin"}}
+<img src="//s3.betablock.net/MinecraftSkins/{{.Username}}.png">
 <form action="/setskin" enctype="multipart/form-data" method="post">
 	<label for="image">Skin Image (up to 16KB)</label>
 	<input type="file" name="image" accept="image/png" required>
