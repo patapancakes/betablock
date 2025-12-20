@@ -78,7 +78,7 @@ func (p *Patcher) Write(out io.Writer) error {
 		case filepath.Ext(f.Name) == ".class":
 			body = replace.Chain(body,
 				// client
-				replace.Bytes(strb("http://login.minecraft.net/session?name="), strb("http://"+loginHost+"/session?name=")),
+				replace.Bytes(strb("https://login.minecraft.net/session?name="), strb("https://"+loginHost+"/session?name=")),
 				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("http://"+wwwHost+"/game/joinserver.jsp?user=")),
 
 				// legacy client
