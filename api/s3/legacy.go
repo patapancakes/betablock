@@ -23,11 +23,11 @@ func HandleLegacyResources(w http.ResponseWriter, r *http.Request) {
 
 		cw := csv.NewWriter(w)
 
-		defer cw.Flush()
-
 		for _, f := range files {
 			cw.Write([]string{f.Key, strconv.Itoa(f.Size), strconv.Itoa(int(f.Modified.UnixMilli()))})
 		}
+
+		cw.Flush()
 
 		return
 	}
