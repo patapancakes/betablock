@@ -38,6 +38,7 @@ const (
 	wwwHost   = "www." + host
 	loginHost = "login." + host
 	s3Host    = "s3." + host
+	startHost = "start." + host
 )
 
 type Patcher struct {
@@ -95,6 +96,7 @@ func (p *Patcher) Write(out io.Writer) error {
 				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("http://"+wwwHost+"/game/checkserver.jsp?user=")),
 
 				// launcher
+				replace.Bytes(strb("http://mcupdate.tumblr.com/"), strb("https://"+startHost+"/")),
 				replace.Bytes(strb("https://login.minecraft.net/"), strb("https://"+loginHost+"/")),
 				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("http://"+s3Host+"/MinecraftDownload/")),
 
