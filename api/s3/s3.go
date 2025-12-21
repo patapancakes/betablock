@@ -23,6 +23,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"io/fs"
@@ -32,7 +33,6 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
-	"text/template"
 	"time"
 
 	"github.com/patapancakes/betablock/patcher"
@@ -40,18 +40,18 @@ import (
 	"github.com/patapancakes/betablock/db"
 )
 
-var t = template.Must(template.New("index.xml").ParseFiles("templates/s3/index.xml"))
-
-type Index struct {
-	Name  string
-	Files []IndexFile
+type ListBucketResult struct {
+	XMLName  xml.Name `xml:"ListBucketResult"`
+	Name     string   `xml:"Name"`
+	Contents []Object `xml:"Contents"`
 }
 
-type IndexFile struct {
-	Path     string
-	Modified time.Time
-	Hash     string
-	Size     int
+type Object struct {
+	Key  string `xml:"Key"`
+	Size int    `xml:"Size"`
+
+	Hash     string    `xml:"-"`
+	Modified time.Time `xml:"-"`
 }
 
 func Handle(w http.ResponseWriter, r *http.Request) {
@@ -59,10 +59,10 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	// object list
 	if slices.Contains([]string{"/MinecraftDownload/", "/MinecraftResources/"}, r.URL.Path) {
-		var index Index
 		var err error
-		index.Name = path.Base(r.URL.Path)
-		index.Files, err = getFiles(file)
+
+		res := ListBucketResult{Name: path.Base(r.URL.Path)}
+		res.Contents, err = getFiles(file)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -70,7 +70,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "text/xml")
 
-		err = t.Execute(w, index)
+		err = xml.NewEncoder(w).Encode(res)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -178,8 +178,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func getFiles(base string) ([]IndexFile, error) {
-	var files []IndexFile
+func getFiles(base string) ([]Object, error) {
+	var files []Object
 
 	err := filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -213,11 +213,11 @@ func getFiles(base string) ([]IndexFile, error) {
 			return err
 		}
 
-		files = append(files, IndexFile{
-			Path:     rel,
+		files = append(files, Object{
+			Key:      rel,
+			Size:     int(stat.Size()),
 			Modified: stat.ModTime(),
 			Hash:     hex.EncodeToString(hash.Sum(nil)),
-			Size:     int(stat.Size()),
 		})
 
 		return nil

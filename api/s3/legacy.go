@@ -26,7 +26,7 @@ func HandleLegacyResources(w http.ResponseWriter, r *http.Request) {
 		defer cw.Flush()
 
 		for _, f := range files {
-			cw.Write([]string{f.Path, strconv.Itoa(f.Size), strconv.Itoa(int(f.Modified.UnixMilli()))})
+			cw.Write([]string{f.Key, strconv.Itoa(f.Size), strconv.Itoa(int(f.Modified.UnixMilli()))})
 		}
 
 		return
