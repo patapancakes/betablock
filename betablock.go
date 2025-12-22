@@ -24,14 +24,11 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"path"
 
-	"github.com/patapancakes/betablock/api/login"
-	"github.com/patapancakes/betablock/api/s3"
+	"github.com/patapancakes/betablock/api"
+	"github.com/patapancakes/betablock/cdn"
 	"github.com/patapancakes/betablock/db"
 	"github.com/patapancakes/betablock/frontend"
-
-	"github.com/patapancakes/betablock/api/game"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -55,6 +52,9 @@ func main() {
 		log.Fatalf("error in database init: %s", err)
 	}
 
+	// frontend
+	http.Handle("/", http.RedirectHandler("//www.betablock.net/register", http.StatusSeeOther))
+
 	http.HandleFunc("/register", frontend.Register)
 	http.HandleFunc("/login", frontend.Login)
 	http.HandleFunc("/logout", frontend.Logout)
@@ -63,35 +63,22 @@ func main() {
 	http.HandleFunc("/setversion", frontend.SetVersion)
 	http.HandleFunc("/changepw", frontend.ChangePW)
 
-	// action
-	http.Handle("/", http.RedirectHandler("/register", http.StatusSeeOther))
-	http.Handle("/register.jsp", http.RedirectHandler("/register", http.StatusSeeOther))
+	// launcher
+	http.HandleFunc("api.betablock.net/launcher/login", api.Login)
 
-	// game
-	http.HandleFunc("GET /game/joinserver.jsp", game.JoinServer)
-	http.HandleFunc("GET /game/checkserver.jsp", game.CheckServer)
-	http.HandleFunc("POST /game/getversion.jsp", login.Login) // legacy login
+	// server
+	http.HandleFunc("GET api.betablock.net/server/checkserver", api.CheckServer)
 
-	// login
-	http.Handle("GET login.betablock.net/", http.RedirectHandler("https://betablock.net", http.StatusSeeOther))
-	http.HandleFunc("POST login.betablock.net/", login.Login)
-	http.HandleFunc("GET login.betablock.net/session", login.Session)
-
-	// s3
-	http.HandleFunc("s3.betablock.net/", s3.Handle)
-
-	// legacy assets
-	http.HandleFunc("GET /resources/", s3.HandleLegacyResources)
-
-	http.HandleFunc("GET /skin/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "//s3.betablock.bet/MinecraftSkins/"+path.Base(r.URL.Path), http.StatusMovedPermanently)
+	// client
+	http.HandleFunc("GET api.betablock.net/client/joinserver", api.JoinServer)
+	http.HandleFunc("GET api.betablock.net/client/session", api.Session)
+	http.HandleFunc("GET api.betablock.net/client/resources/", cdn.HandleLegacyResources)
+	http.HandleFunc("GET api.betablock.net/client/cloak", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "//cdn.betablock.net/MinecraftCloaks/"+r.URL.Query().Get("user")+".png", http.StatusMovedPermanently)
 	})
-	http.HandleFunc("GET /cloak/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "//s3.betablock.bet/MinecraftCloaks/"+path.Base(r.URL.Path), http.StatusMovedPermanently)
-	})
-	http.HandleFunc("GET /cloak/get.jsp", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "//s3.betablock.bet/MinecraftCloaks/"+r.URL.Query().Get("user")+".png", http.StatusMovedPermanently)
-	})
+
+	// cdn
+	http.HandleFunc("cdn.betablock.net/", cdn.Handle)
 
 	// http stuff
 	if *proto == "unix" {

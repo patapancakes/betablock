@@ -16,7 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package api
 
 import (
 	"encoding/hex"
@@ -33,7 +33,7 @@ func JoinServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serverId, err := getPaddedServerID(r.URL.Query().Get("serverId"))
+	serverId, err := GetPaddedServerID(r.URL.Query().Get("serverId"))
 	if err != nil {
 		http.Error(w, "Bad response", http.StatusBadRequest)
 		return
@@ -52,6 +52,26 @@ func JoinServer(w http.ResponseWriter, r *http.Request) {
 	err = db.SetUserServerID(r.Context(), username, serverId)
 	if err != nil {
 		http.Error(w, "Bad response", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprint(w, "OK")
+}
+
+func Session(w http.ResponseWriter, r *http.Request) {
+	session, err := hex.DecodeString(r.URL.Query().Get("session"))
+	if err != nil {
+		http.Error(w, "Bad response", http.StatusBadRequest)
+		return
+	}
+
+	username, err := db.GetUsernameFromSession(r.Context(), session)
+	if err != nil {
+		http.Error(w, "Bad login", http.StatusOK)
+		return
+	}
+	if r.URL.Query().Get("name") != username {
+		http.Error(w, "Bad login", http.StatusOK)
 		return
 	}
 

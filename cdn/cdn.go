@@ -16,7 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package s3
+package cdn
 
 import (
 	"archive/zip"

@@ -16,36 +16,28 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package game
+package api
 
 import (
-	"bytes"
-	"fmt"
-	"net/http"
-
-	"github.com/patapancakes/betablock/db"
+	"encoding/hex"
+	"errors"
 )
 
-func CheckServer(w http.ResponseWriter, r *http.Request) {
-	serverId, err := getPaddedServerID(r.URL.Query().Get("serverId"))
+var ErrServerIdTooLong = errors.New("server id is too long")
+
+func GetPaddedServerID(sid string) ([]byte, error) {
+	if len(sid) > 16 {
+		return nil, ErrServerIdTooLong
+	}
+
+	for range 16 - len(sid) {
+		sid += "0"
+	}
+
+	serverId, err := hex.DecodeString(sid)
 	if err != nil {
-		fmt.Fprint(w, "NO")
-		return
+		return nil, err
 	}
 
-	username := r.URL.Query().Get("user")
-
-	sid, err := db.GetUserServerID(r.Context(), username)
-	if err != nil {
-		fmt.Fprint(w, "NO")
-		return
-	}
-	if !bytes.Equal(serverId, sid) {
-		fmt.Fprint(w, "NO")
-		return
-	}
-
-	db.DeleteUserServerID(r.Context(), username)
-
-	fmt.Fprint(w, "YES")
+	return serverId, nil
 }

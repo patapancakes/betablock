@@ -16,12 +16,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package login
+package api
 
 import (
 	"crypto/rand"
 	"database/sql"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
@@ -84,24 +83,4 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%d:%x:%s:%x", latestVersion.Unix(), ticket, username, session)
-}
-
-func Session(w http.ResponseWriter, r *http.Request) {
-	session, err := hex.DecodeString(r.URL.Query().Get("session"))
-	if err != nil {
-		http.Error(w, "Bad response", http.StatusBadRequest)
-		return
-	}
-
-	username, err := db.GetUsernameFromSession(r.Context(), session)
-	if err != nil {
-		http.Error(w, "Bad login", http.StatusOK)
-		return
-	}
-	if r.URL.Query().Get("name") != username {
-		http.Error(w, "Bad login", http.StatusOK)
-		return
-	}
-
-	fmt.Fprint(w, "OK")
 }

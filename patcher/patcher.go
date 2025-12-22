@@ -35,11 +35,10 @@ import (
 const (
 	host = "betablock.net"
 
-	wwwHost     = "www." + host
-	loginHost   = "login." + host
-	s3Host      = "s3." + host
-	sessionHost = "session." + host
-	startHost   = "start." + host
+	wwwHost  = "www." + host
+	apiHost  = "api." + host
+	cdnHost  = "cdn." + host
+	newsHost = "news." + host
 )
 
 type Patcher struct {
@@ -80,43 +79,44 @@ func (p *Patcher) Write(out io.Writer) error {
 		case filepath.Ext(f.Name) == ".class":
 			body = replace.Chain(body,
 				// client
-				replace.Bytes(strb("https://login.minecraft.net/session?name="), strb("https://"+loginHost+"/session?name=")),
-				replace.Bytes(strb("https://session.minecraft.net/game/joinserver.jsp?user="), strb("https://"+sessionHost+"/game/joinserver.jsp?user=")),
-				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("http://"+wwwHost+"/game/joinserver.jsp?user=")),
+				replace.Bytes(strb("https://login.minecraft.net/session?name="), strb("https://"+apiHost+"/client/session?name=")),
+				replace.Bytes(strb("http://session.minecraft.net/game/joinserver.jsp?user="), strb("https://"+apiHost+"/client/joinserver?user=")),
+				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("https://"+apiHost+"/client/joinserver?user=")),
 
 				// legacy client
-				replace.Bytes(strb("http://www.minecraft.net/resources/"), strb("http://"+wwwHost+"/resources/")),
-				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("http://"+wwwHost+"/skin/")),
-				replace.Bytes(strb("http://www.minecraft.net/cloak/get.jsp?user="), strb("http://"+wwwHost+"/cloak/get.jsp?user=")),
+				replace.Bytes(strb("http://www.minecraft.net/resources/"), strb("https://"+apiHost+"/client/resources/")),
+				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("https://"+cdnHost+"/MinecraftSkins/")),
+				replace.Bytes(strb("http://www.minecraft.net/cloak/get.jsp?user="), strb("https://"+apiHost+"/client/cloak?user=")),
 
 				// client resources
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("http://"+s3Host+"/MinecraftSkins/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftCloaks/"), strb("http://"+s3Host+"/MinecraftCloaks/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftResources/"), strb("http://"+s3Host+"/MinecraftResources/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("https://"+cdnHost+"/MinecraftSkins/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftCloaks/"), strb("https://"+cdnHost+"/MinecraftCloaks/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftResources/"), strb("https://"+cdnHost+"/MinecraftResources/")),
 
 				// server
-				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("http://"+wwwHost+"/game/checkserver.jsp?user=")),
-				replace.Bytes(strb("http://session.minecraft.net/game/checkserver.jsp?user="), strb("http://"+sessionHost+"/game/checkserver.jsp?user=")),
+				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("https://"+apiHost+"/server/checkserver?user=")),
+				replace.Bytes(strb("http://session.minecraft.net/game/checkserver.jsp?user="), strb("https://"+apiHost+"/server/checkserver?user=")),
 
 				// launcher
-				replace.Bytes(strb("http://mcupdate.tumblr.com/"), strb("https://"+startHost+"/")),
-				replace.Bytes(strb("https://login.minecraft.net/"), strb("https://"+loginHost+"/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("http://"+s3Host+"/MinecraftDownload/")),
+				replace.Bytes(strb("http://mcupdate.tumblr.com/"), strb("https://"+newsHost+"/")),
+				replace.Bytes(strb("http://www.minecraft.net/register.jsp"), strb("https://"+wwwHost+"/register")),
+				replace.Bytes(strb("https://login.minecraft.net/"), strb("https://"+apiHost+"/launcher/login")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("https://"+cdnHost+"/MinecraftDownload/")),
 
 				// legacy launcher
-				replace.Bytes(strb("http://www.minecraft.net/game/getversion.jsp"), strb("http://"+wwwHost+"/game/getversion.jsp")),
+				replace.Bytes(strb("http://www.minecraft.net/game/getversion.jsp"), strb("https://"+apiHost+"/launcher/login")),
 
 				// launcher + client
 				replace.Bytes(strb("minecraft"), strb("betablock")), // replace directory name
 			)
-		case filepath.Base(f.Name) == "minecraft.key":
-			resp, err := http.Get("https://" + loginHost + "/session")
+		case f.Name == "net/minecraft/minecraft.key":
+			resp, err := http.Get("https://" + apiHost + "/client/session")
 			if err != nil {
 				continue
 			}
 
 			for _, cert := range resp.TLS.PeerCertificates {
-				if cert.Subject.CommonName != host && !slices.Contains(cert.DNSNames, host) {
+				if cert.Subject.CommonName != host && !slices.Contains(cert.DNSNames, apiHost) {
 					continue
 				}
 
