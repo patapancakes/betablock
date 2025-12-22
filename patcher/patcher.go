@@ -35,10 +35,11 @@ import (
 const (
 	host = "betablock.net"
 
-	wwwHost   = "www." + host
-	loginHost = "login." + host
-	s3Host    = "s3." + host
-	startHost = "start." + host
+	wwwHost     = "www." + host
+	loginHost   = "login." + host
+	s3Host      = "s3." + host
+	sessionHost = "session." + host
+	startHost   = "start." + host
 )
 
 type Patcher struct {
@@ -80,6 +81,7 @@ func (p *Patcher) Write(out io.Writer) error {
 			body = replace.Chain(body,
 				// client
 				replace.Bytes(strb("https://login.minecraft.net/session?name="), strb("https://"+loginHost+"/session?name=")),
+				replace.Bytes(strb("https://session.minecraft.net/game/joinserver.jsp?user="), strb("https://"+sessionHost+"/game/joinserver.jsp?user=")),
 				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("http://"+wwwHost+"/game/joinserver.jsp?user=")),
 
 				// legacy client
@@ -94,6 +96,7 @@ func (p *Patcher) Write(out io.Writer) error {
 
 				// server
 				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("http://"+wwwHost+"/game/checkserver.jsp?user=")),
+				replace.Bytes(strb("http://session.minecraft.net/game/checkserver.jsp?user="), strb("http://"+sessionHost+"/game/checkserver.jsp?user=")),
 
 				// launcher
 				replace.Bytes(strb("http://mcupdate.tumblr.com/"), strb("https://"+startHost+"/")),
