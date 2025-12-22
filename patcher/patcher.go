@@ -85,13 +85,13 @@ func (p *Patcher) Write(out io.Writer) error {
 
 				// legacy client
 				replace.Bytes(strb("http://www.minecraft.net/resources/"), strb("https://"+apiHost+"/client/resources/")),
-				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("https://"+cdnHost+"/MinecraftSkins/")),
+				replace.Bytes(strb("http://www.minecraft.net/skin/"), strb("https://"+cdnHost+"/skins/")),
 				replace.Bytes(strb("http://www.minecraft.net/cloak/get.jsp?user="), strb("https://"+apiHost+"/client/cloak?user=")),
 
 				// client resources
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("https://"+cdnHost+"/MinecraftSkins/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftCloaks/"), strb("https://"+cdnHost+"/MinecraftCloaks/")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftResources/"), strb("https://"+cdnHost+"/MinecraftResources/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftSkins/"), strb("https://"+cdnHost+"/skins/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftCloaks/"), strb("https://"+cdnHost+"/capes/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftResources/"), strb("https://"+cdnHost+"/resources/")),
 
 				// server
 				replace.Bytes(strb("http://www.minecraft.net/game/checkserver.jsp?user="), strb("https://"+apiHost+"/server/checkserver?user=")),
@@ -101,7 +101,7 @@ func (p *Patcher) Write(out io.Writer) error {
 				replace.Bytes(strb("http://mcupdate.tumblr.com/"), strb("https://"+newsHost+"/")),
 				replace.Bytes(strb("http://www.minecraft.net/register.jsp"), strb("https://"+wwwHost+"/register")),
 				replace.Bytes(strb("https://login.minecraft.net/"), strb("https://"+apiHost+"/launcher/login")),
-				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("https://"+cdnHost+"/MinecraftDownload/")),
+				replace.Bytes(strb("http://s3.amazonaws.com/MinecraftDownload/"), strb("https://"+cdnHost+"/binaries/")),
 
 				// legacy launcher
 				replace.Bytes(strb("http://www.minecraft.net/game/getversion.jsp"), strb("https://"+apiHost+"/launcher/login")),

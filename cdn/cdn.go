@@ -58,7 +58,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	file := filepath.Join("public", r.URL.Path)
 
 	// object list
-	if slices.Contains([]string{"/MinecraftDownload/", "/MinecraftResources/"}, r.URL.Path) {
+	if slices.Contains([]string{"/binaries/", "/resources/"}, r.URL.Path) {
 		var err error
 
 		res := ListBucketResult{Name: path.Base(r.URL.Path)}
@@ -82,7 +82,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	var of io.Reader
 
 	switch r.URL.Path {
-	case "/MinecraftDownload/minecraft.jar": // handle version selection and patching
+	case "/binaries/minecraft.jar": // handle version selection and patching
 		ticket, err := hex.DecodeString(r.URL.Query().Get("ticket"))
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to decode ticket: %s", err), http.StatusBadRequest)
