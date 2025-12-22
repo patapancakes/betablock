@@ -27,11 +27,11 @@ import (
 )
 
 func HandleLegacyResources(w http.ResponseWriter, r *http.Request) {
-	file := strings.TrimPrefix(r.URL.Path, "/resources/")
+	file := strings.TrimPrefix(r.URL.Path, "/client/resources/")
 
 	// object list
 	if file == "" {
-		files, err := getFiles(filepath.Join("public/MinecraftResources", file))
+		files, err := getFiles(filepath.Join("public/resources", file))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -50,5 +50,5 @@ func HandleLegacyResources(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "//s3.betablock.net/MinecraftResources/"+file, http.StatusMovedPermanently)
+	http.Redirect(w, r, "//cdn.betablock.net/resources/"+file, http.StatusMovedPermanently)
 }
