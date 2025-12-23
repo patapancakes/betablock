@@ -89,12 +89,5 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	ad.Success = true
-	ad.Username = username
-
-	err = t.Execute(w, ad)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to execute template: %s", err), http.StatusInternalServerError)
-		return
-	}
+	http.Redirect(w, r, "/setskin", http.StatusSeeOther)
 }
