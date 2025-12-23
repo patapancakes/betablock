@@ -40,7 +40,7 @@ type ActionData struct {
 
 const maxUploadSize = 1024 * 16
 
-var t = template.Must(template.New("main.html").ParseGlob("templates/frontend/*.html"))
+var t = template.Must(template.New("main.html").ParseGlob("templates/*.html"))
 
 func Error(w http.ResponseWriter, ad ActionData, reason string) error {
 	ad.Error = reason
