@@ -95,9 +95,9 @@ func SetCosmetic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dir := "MinecraftSkins"
+	dir := "skins"
 	if cape {
-		dir = "MinecraftCloaks"
+		dir = "capes"
 	}
 
 	// open dest file for writing
