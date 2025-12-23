@@ -1,8 +1,8 @@
 {{define "setskin"}}
-<img src="//cdn.betablock.net/skins/{{.Username}}.png">
+<img height="256" onerror="this.remove()" src="//cdn.betablock.net/skins/{{.Username}}.png">
 <form action="/setskin" enctype="multipart/form-data" method="post">
 	<label for="image">Skin Image (up to 16KB)</label>
-	<input type="file" name="image" accept="image/png" required>
+	<input type="file" name="image" id="image" accept="image/png" required>
 	<input type="submit" value="Submit">
 </form>
 {{end}}
