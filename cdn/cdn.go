@@ -104,6 +104,13 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			version = "b1.7.3"
 		}
+		if version == "realtime" {
+			version, _, err = db.GetRealtimeVersion(r.Context())
+			if err != nil {
+				http.Error(w, fmt.Sprintf("failed to get realtime version: %s", err), http.StatusInternalServerError)
+				return
+			}
+		}
 
 		f, err := os.Open(filepath.Join("clients", version+".jar"))
 		if err != nil {

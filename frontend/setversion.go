@@ -37,7 +37,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var versions []string
+	versions := []string{"realtime"}
 	for _, e := range entries {
 		if e.Type().IsDir() {
 			continue

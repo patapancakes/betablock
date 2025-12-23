@@ -186,3 +186,14 @@ func SetUserClientVersion(ctx context.Context, username string, version string) 
 
 	return nil
 }
+
+func GetRealtimeVersion(ctx context.Context) (string, time.Time, error) {
+	var version string
+	var released time.Time
+	err := conn.QueryRowContext(ctx, "SELECT id, released FROM timeline ORDER BY MOD(DAYOFYEAR(released) * 86400 + TIME_TO_SEC(released), 366 * 86400) - (DAYOFYEAR(CURDATE()) * 86400) DESC LIMIT 1").Scan(&version, &released)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+
+	return version, released, nil
+}
