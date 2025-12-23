@@ -37,9 +37,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/patapancakes/betablock/patcher"
-
 	"github.com/patapancakes/betablock/db"
+	"github.com/patapancakes/betablock/patcher"
 )
 
 type ListBucketResult struct {
