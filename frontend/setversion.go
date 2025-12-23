@@ -19,6 +19,8 @@
 package frontend
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -64,7 +66,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ad.Version, err = db.GetUserClientVersion(r.Context(), ad.Username)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		if err == http.ErrNoCookie {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return

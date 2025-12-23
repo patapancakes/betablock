@@ -82,11 +82,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		latestVersion = time.UnixMilli(0)
 	}
 
-	version, err := db.GetUserClientVersion(r.Context(), username)
-	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
-		return
-	}
+	version, _ := db.GetUserClientVersion(r.Context(), username)
 	if version == "realtime" {
 		version, latestVersion, err = db.GetRealtimeVersion(r.Context())
 		if err != nil {
