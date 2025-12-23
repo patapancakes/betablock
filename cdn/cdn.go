@@ -22,8 +22,10 @@ import (
 	"archive/zip"
 	"bytes"
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -101,10 +103,11 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		}
 
 		version, err := db.GetUserClientVersion(r.Context(), username)
-		if err != nil {
-			version = "b1.7.3"
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, fmt.Sprintf("failed to get client version: %s", err), http.StatusInternalServerError)
+			return
 		}
-		if version == "realtime" {
+		if slices.Contains([]string{"", "realtime"}, version) {
 			version, _, err = db.GetRealtimeVersion(r.Context())
 			if err != nil {
 				http.Error(w, fmt.Sprintf("failed to get realtime version: %s", err), http.StatusInternalServerError)
