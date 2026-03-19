@@ -53,7 +53,7 @@ func main() {
 	}
 
 	// frontend
-	http.Handle("/", http.RedirectHandler("//www.betablock.net/register", http.StatusSeeOther))
+	http.Handle("/", http.RedirectHandler("//www.betablock.net/setskin", http.StatusSeeOther))
 
 	http.HandleFunc("/register", frontend.Register)
 	http.HandleFunc("/login", frontend.Login)

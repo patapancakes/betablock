@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Betablock - {{.Header}}</title>
+		<meta charset="utf-8">
+		<meta name="description" content="Beta Minecraft revived!">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="//cdn.betablock.net/assets/style.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<header>
+			<div class="wrapper">
+				<h1>{{.Header}}</h1>
+				{{with .Username}}
+				<div>
+					{{.}}
+					<a class="btn" href="/logout">Logout</a>
+				</div>
+				{{end}}
+			</div>
+		</header>
+		<main>
+			<div class="wrapper">
+				{{if .Success}}<h2 class="infobar success">Success!</h2>{{end}}
+				{{with .Error}}<h2 class="infobar error">{{.}}</h2>{{end}}
+				{{if eq .Page "register"}}{{template "register" .}}{{end}}
+				{{if eq .Page "login"}}{{template "login" .}}{{end}}
+				{{if eq .Page "setskin"}}{{template "setskin" .}}{{end}}
+				{{if eq .Page "setcape"}}{{template "setcape" .}}{{end}}
+				{{if eq .Page "setversion"}}{{template "setversion" .}}{{end}}
+				{{if eq .Page "changepw"}}{{template "changepw" .}}{{end}}
+			</div>
+		</main>
+		<footer>
+			<div class="wrapper">
+				{{if eq .Username ""}}
+				<a class="btn" href="/register">Register</a>
+				<a class="btn" href="/login">Login</a>
+				{{else}}
+				<a class="btn" href="/setskin">Set Skin</a>
+				<a class="btn" href="/setcape">Set Cape</a>
+				<a class="btn" href="/setversion">Set Version</a>
+				<a class="btn" href="/changepw">Change Password</a>
+				{{end}}
+			</div>
+		</footer>
+	</body>
+</html>

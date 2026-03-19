@@ -1,0 +1,8 @@
+{{define "setcape"}}
+<form class="panel" action="/setcape" enctype="multipart/form-data" method="post">
+	<img class="skin" onerror="this.remove()" src="//cdn.betablock.net/capes/{{.Username}}.png">
+	<label for="image">Cape Image (up to 16KB)</label>
+	<input class="txt" type="file" name="image" id="image" accept="image/png" required>
+	<input class="btn" type="submit" value="Submit">
+</form>
+{{end}}

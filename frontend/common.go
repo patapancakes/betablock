@@ -19,6 +19,7 @@
 package frontend
 
 import (
+	"embed"
 	"encoding/base64"
 	"html/template"
 	"net/http"
@@ -40,7 +41,9 @@ type ActionData struct {
 
 const maxUploadSize = 1024 * 16
 
-var t = template.Must(template.New("main.html").ParseGlob("templates/*.html"))
+//go:embed templates
+var fs embed.FS
+var t = template.Must(template.New("main.html").ParseFS(fs, "templates/*.html"))
 
 func Error(w http.ResponseWriter, ad ActionData, reason string) error {
 	ad.Error = reason

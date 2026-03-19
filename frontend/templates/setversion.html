@@ -1,0 +1,11 @@
+{{define "setversion"}}
+<form class="panel" action="/setversion" method="post">
+	<label for="version">Game Version</label>
+	<select class="txt" name="version" id="version" required>
+		{{if eq "" .Version}}<option disabled selected></option>{{end}}{{range .Versions}}
+		<option value="{{.}}"{{if eq . $.Version}}selected{{end}}>{{.}}</option>{{end}}
+	</select>
+	<input class="btn" type="submit" value="Submit">
+	<p>* The "realtime" option simulates the original update cycle using the current date.</p>
+</form>
+{{end}}

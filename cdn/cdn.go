@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"mime"
 	"net/http"
 	"os"
 	"path"
@@ -166,6 +167,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Header().Set("Content-Type", mime.TypeByExtension(path.Ext(r.URL.Path)))
 		of = f
 	}
 
