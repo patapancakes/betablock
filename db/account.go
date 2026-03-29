@@ -100,7 +100,7 @@ func InsertSession(ctx context.Context, username string, session []byte) error {
 
 func GetUsernameFromSession(ctx context.Context, session []byte) (string, error) {
 	var username string
-	err := conn.QueryRowContext(ctx, "SELECT username FROM sessions WHERE session = ?", session).Scan(&username)
+	err := conn.QueryRowContext(ctx, "SELECT username FROM sessions WHERE session = ? AND issued > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 DAY)", session).Scan(&username)
 	if err != nil {
 		return "", err
 	}
@@ -120,7 +120,7 @@ func InsertTicket(ctx context.Context, username string, ticket []byte) error {
 
 func GetUsernameFromTicket(ctx context.Context, ticket []byte) (string, error) {
 	var username string
-	err := conn.QueryRowContext(ctx, "SELECT username FROM tickets WHERE ticket = ?", ticket).Scan(&username)
+	err := conn.QueryRowContext(ctx, "SELECT username FROM tickets WHERE ticket = ? AND issued > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 DAY)", ticket).Scan(&username)
 	if err != nil {
 		return "", err
 	}
@@ -149,7 +149,7 @@ func SetUserServerID(ctx context.Context, username string, sid []byte) error {
 
 func GetUserServerID(ctx context.Context, username string) ([]byte, error) {
 	var sid []byte
-	err := conn.QueryRowContext(ctx, "SELECT server FROM players WHERE username = ?", username).Scan(&sid)
+	err := conn.QueryRowContext(ctx, "SELECT server FROM players WHERE username = ? AND issued > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 MINUTE)", username).Scan(&sid)
 	if err != nil {
 		return nil, err
 	}
