@@ -19,7 +19,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"net"
 	"net/http"
@@ -34,20 +33,8 @@ import (
 )
 
 func main() {
-	// webserver related
-	proto := flag.String("proto", "tcp", "proto for web server")
-	addr := flag.String("addr", "127.0.0.1:80", "address for web server")
-
-	// database related
-	dbuser := flag.String("dbuser", "betablock", "database user's name")
-	dbpass := flag.String("dbpass", "", "database user's password")
-	dbproto := flag.String("dbproto", "tcp", "database connection protocol")
-	dbaddr := flag.String("dbaddr", "127.0.0.1:3306", "database address")
-	dbname := flag.String("dbname", "betablock", "database name")
-	flag.Parse()
-
 	// init database
-	err := db.Init(*dbuser, *dbpass, *dbproto, *dbaddr, *dbname)
+	err := db.Init(os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_PROTO"), os.Getenv("DB_ADDR"), os.Getenv("DB_NAME"))
 	if err != nil {
 		log.Fatalf("error in database init: %s", err)
 	}
@@ -80,23 +67,26 @@ func main() {
 	// cdn
 	http.HandleFunc("cdn.betablock.net/", cdn.Handle)
 
+	httpProto := os.Getenv("HTTP_PROTO")
+	httpAddr := os.Getenv("HTTP_ADDR")
+
 	// http stuff
-	if *proto == "unix" {
-		err = os.Remove(*addr)
+	if httpProto == "unix" {
+		err = os.Remove(httpAddr)
 		if err != nil && !os.IsNotExist(err) {
 			log.Fatalf("failed to delete unix socket: %s", err)
 		}
 	}
 
-	l, err := net.Listen(*proto, *addr)
+	l, err := net.Listen(httpProto, httpAddr)
 	if err != nil {
 		log.Fatalf("failed to create web server listener: %s", err)
 	}
 
 	defer l.Close()
 
-	if *proto == "unix" {
-		err = os.Chmod(*addr, 0777)
+	if httpProto == "unix" {
+		err = os.Chmod(httpAddr, 0777)
 		if err != nil {
 			log.Fatalf("failed to set unix socket permissions: %s", err)
 		}

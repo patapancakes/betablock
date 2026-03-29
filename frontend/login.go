@@ -24,6 +24,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/patapancakes/betablock/db"
 	"golang.org/x/crypto/bcrypt"
@@ -48,6 +49,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 
 		return
+	}
+
+	if os.Getenv("TS_SITE_KEY") != "" {
+		ok, err := verifyTurnstile(r)
+		if err != nil {
+			Error(w, ad, "Server error")
+			return
+		}
+		if !ok {
+			Error(w, ad, "Verification failed")
+			return
+		}
 	}
 
 	// validate username and password

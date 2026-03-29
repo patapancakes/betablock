@@ -21,6 +21,7 @@ package frontend
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -49,6 +50,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 
 		return
+	}
+
+	if os.Getenv("TS_SITE_KEY") != "" {
+		ok, err := verifyTurnstile(r)
+		if err != nil {
+			Error(w, ad, "Server error")
+			return
+		}
+		if !ok {
+			Error(w, ad, "Verification failed")
+			return
+		}
 	}
 
 	// try to register, show success page if ok
