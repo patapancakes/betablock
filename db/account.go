@@ -128,6 +128,15 @@ func GetUsernameFromTicket(ctx context.Context, ticket []byte) (string, error) {
 	return username, nil
 }
 
+func DeleteTicket(ctx context.Context, ticket []byte) error {
+	_, err := conn.ExecContext(ctx, "DELETE FROM tickets WHERE ticket = ?", ticket)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // server id
 func SetUserServerID(ctx context.Context, username string, sid []byte) error {
 	_, err := conn.ExecContext(ctx, "REPLACE INTO players (username, server) VALUES (?, ?)", username, sid)

@@ -102,6 +102,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		db.DeleteTicket(r.Context(), ticket)
+
 		version, err := db.GetUserClientVersion(r.Context(), username)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, fmt.Sprintf("failed to get client version: %s", err), http.StatusInternalServerError)
