@@ -4,7 +4,7 @@
 	<input class="txt" type="text" name="username" id="username" placeholder="Username" minlength="3" maxlength="16" autocomplete="username" required>
 	<label for="password">Password (at least 6 characters)</label>
 	<input class="txt" type="password" name="password" id="password" placeholder="Password" minlength="6" maxlength="72" autocomplete="new-password" required>
-	{{with env "TS_SITE_KEY"}}<div class="cf-turnstile" data-sitekey="{{.}}"></div>
+	{{with env "TS_SITE_KEY"}}<div class="cf-turnstile" data-size="flexible" data-sitekey="{{.}}"></div>
 	<input class="btn" type="submit" value="Submit">{{end}}
 </form>
 {{end}}
