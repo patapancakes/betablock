@@ -18,18 +18,22 @@
 		<header>
 			<div class="wrapper">
 				<h1>{{.Header}}</h1>
-				{{with .Username}}
 				<div>
+					{{with .Username}}
 					{{.}}
 					<a class="btn" href="/logout">Logout</a>
+					{{else}}
+					<a class="btn" href="/register">Register</a>
+					<a class="btn" href="/login">Login</a>
+					{{end}}
 				</div>
-				{{end}}
 			</div>
 		</header>
 		<main>
 			<div class="wrapper">
 				{{if .Success}}<h2 class="infobar success">Success!</h2>{{end}}
 				{{with .Error}}<h2 class="infobar error">{{.}}</h2>{{end}}
+				{{if eq .Page "about"}}{{template "about" .}}{{end}}
 				{{if eq .Page "download"}}{{template "download" .}}{{end}}
 				{{if eq .Page "register"}}{{template "register" .}}{{end}}
 				{{if eq .Page "login"}}{{template "login" .}}{{end}}
@@ -41,11 +45,9 @@
 		</main>
 		<footer>
 			<div class="wrapper">
+				<a class="btn" href="/" style="padding-top: 1rem; padding-bottom: 2rem;"><img src="/assets/favicon.ico" style="height: 15rem; display: block;"></a>
 				<a class="btn" href="/download">Get Betablock</a>
-				{{if eq .Username ""}}
-				<a class="btn" href="/register">Register</a>
-				<a class="btn" href="/login">Login</a>
-				{{else}}
+				{{with .Username}}
 				<a class="btn" href="/setskin">Set Skin</a>
 				<a class="btn" href="/setcape">Set Cape</a>
 				<a class="btn" href="/setversion">Set Version</a>

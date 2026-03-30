@@ -45,8 +45,7 @@ func main() {
 	}
 
 	// frontend
-	http.Handle("/", http.RedirectHandler("//www.betablock.net/download", http.StatusSeeOther))
-
+	http.HandleFunc("/", frontend.About)
 	http.HandleFunc("/download", frontend.Download)
 	http.HandleFunc("/register", frontend.Register)
 	http.HandleFunc("/login", frontend.Login)

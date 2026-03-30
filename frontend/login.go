@@ -102,5 +102,5 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	http.Redirect(w, r, "/setskin", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
