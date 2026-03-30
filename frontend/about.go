@@ -24,7 +24,7 @@ import (
 )
 
 func About(w http.ResponseWriter, r *http.Request) {
-	ad := ActionData{Header: "Betablock", Page: "about"}
+	ad := ActionData{Header: "About", Page: "about"}
 
 	username, err := UsernameFromRequest(r)
 	if err != nil && err != http.ErrNoCookie {
