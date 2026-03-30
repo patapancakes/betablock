@@ -206,3 +206,14 @@ func GetRealtimeVersion(ctx context.Context) (string, time.Time, error) {
 
 	return version, released, nil
 }
+
+// stats
+func GetUserCount(ctx context.Context) (int, error) {
+	var count int
+	err := conn.QueryRowContext(ctx, "SELECT COUNT(*) FROM accounts").Scan(&count)
+	if err != nil {
+		return -1, err
+	}
+
+	return count, nil
+}

@@ -19,6 +19,7 @@
 package frontend
 
 import (
+	"context"
 	"embed"
 	"encoding/base64"
 	"html/template"
@@ -44,7 +45,7 @@ const maxUploadSize = 1024 * 16
 
 //go:embed templates
 var fs embed.FS
-var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv}).ParseFS(fs, "templates/*.html"))
+var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv, "usercount": func() int { count, _ := db.GetUserCount(context.TODO()); return count }}).ParseFS(fs, "templates/*.html"))
 
 func Error(w http.ResponseWriter, ad ActionData, reason string) error {
 	ad.Error = reason
