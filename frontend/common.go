@@ -45,7 +45,7 @@ const maxUploadSize = 1024 * 16
 
 //go:embed templates
 var fs embed.FS
-var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv, "usercount": func() int { count, _ := db.GetUserCount(context.TODO()); return count }}).ParseFS(fs, "templates/*.html"))
+var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv, "usercount": usercount, "version": version}).ParseFS(fs, "templates/*.html"))
 
 func Error(w http.ResponseWriter, ad ActionData, reason string) error {
 	ad.Error = reason
@@ -72,4 +72,22 @@ func UsernameFromRequest(r *http.Request) (string, error) {
 	}
 
 	return username, nil
+}
+
+func usercount() int {
+	count, _ := db.GetUserCount(context.TODO())
+	return count
+}
+
+func version() string {
+	version, _, _ := db.GetRealtimeVersion(context.TODO())
+
+	switch version[0] {
+	case 'a':
+		version = "Alpha " + version[1:]
+	case 'b':
+		version = "Beta " + version[1:]
+	}
+
+	return version
 }
