@@ -225,7 +225,7 @@ input[type="file"]:focus-within, input[type="file"]:is(:hover, :focus, :active, 
 #patcher input[type="file"] {
 	width: 100%;
 	box-sizing: border-box;
-	height: 128rem;
+	height: 100rem;
 	align-content: center;
 	text-align: center;
 	cursor: pointer;
