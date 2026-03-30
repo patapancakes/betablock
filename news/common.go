@@ -19,6 +19,7 @@
 package news
 
 import (
+	"database/sql"
 	"embed"
 	"fmt"
 	"html/template"
@@ -36,7 +37,7 @@ var AssetsFS embed.FS
 
 func Handle(w http.ResponseWriter, r *http.Request) {
 	entries, err := db.GetNews(r.Context())
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		http.Error(w, fmt.Sprintf("failed to get news entries: %s", err), http.StatusInternalServerError)
 		return
 	}
