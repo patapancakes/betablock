@@ -3,6 +3,7 @@
 	<img class="skin" onerror="this.remove()" src="//cdn.betablock.net/skins/{{.Username}}.png">
 	<label for="image">Skin Image (up to 16KB)</label>
 	<input class="txt" type="file" name="image" id="image" accept="image/png" required>
+	{{with env "TS_SITE_KEY"}}<div class="cf-turnstile" data-size="flexible" data-sitekey="{{.}}"></div>{{end}}
 	<input class="btn" type="submit" value="Submit">
 </form>
 {{end}}

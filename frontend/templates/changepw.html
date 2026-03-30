@@ -4,6 +4,7 @@
 	<input class="txt" type="password" name="password" id="password" placeholder="Old Password" minlength="6" maxlength="72" autocomplete="current-password" required>
 	<label for="newpassword">New Password (at least 6 characters)</label>
 	<input class="txt" type="password" name="newpassword" id="newpassword" placeholder="New Password" minlength="6" maxlength="72" autocomplete="new-password" required>
+	{{with env "TS_SITE_KEY"}}<div class="cf-turnstile" data-size="flexible" data-sitekey="{{.}}"></div>{{end}}
 	<input class="btn" type="submit" value="Submit">
 </form>
 {{end}}

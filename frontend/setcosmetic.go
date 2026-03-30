@@ -58,6 +58,18 @@ func SetCosmetic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if os.Getenv("TS_SITE_KEY") != "" {
+		ok, err := verifyTurnstile(r)
+		if err != nil {
+			Error(w, ad, "Server error")
+			return
+		}
+		if !ok {
+			Error(w, ad, "Verification failed")
+			return
+		}
+	}
+
 	// parse form data
 	err = r.ParseMultipartForm(maxUploadSize)
 	if err != nil {
