@@ -296,3 +296,21 @@ main .wrapper {
 	gap: 5rem;
 	padding: 8rem;
 }
+
+.infobar {
+    box-sizing: border-box;
+    font-size: 8rem;
+    outline: 1rem solid black;
+    background: #13304b;
+    text-shadow: none;
+    padding: 1rem 5rem 2rem 5rem;
+    border: 2rem solid #306482;
+}
+.infobar.error {
+    background-color: darkred;
+    border-color: firebrick;
+}
+.infobar.success {
+    background-color: darkgreen;
+    border-color: lime;
+}
