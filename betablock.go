@@ -30,6 +30,7 @@ import (
 	"github.com/patapancakes/betablock/cdn"
 	"github.com/patapancakes/betablock/db"
 	"github.com/patapancakes/betablock/frontend"
+	"github.com/patapancakes/betablock/news"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -78,6 +79,10 @@ func main() {
 
 	// cdn
 	http.HandleFunc("cdn.betablock.net/", cdn.Handle)
+
+	// news
+	http.HandleFunc("GET news.betablock.net/", news.Handle)
+	http.Handle("GET news.betablock.net/assets/", http.StripPrefix("/assets/", http.FileServerFS(news.AssetsFS)))
 
 	httpProto := os.Getenv("HTTP_PROTO")
 	httpAddr := os.Getenv("HTTP_ADDR")
