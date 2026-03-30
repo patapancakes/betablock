@@ -20,7 +20,6 @@ package main
 
 import (
 	"embed"
-	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -56,12 +55,7 @@ func main() {
 	http.HandleFunc("/setversion", frontend.SetVersion)
 	http.HandleFunc("/changepw", frontend.ChangePW)
 
-	assets, err := fs.Sub(frontendAssetsFS, "frontend")
-	if err != nil {
-		log.Fatalf("failed to create sub fs: %s", err)
-	}
-
-	http.Handle("GET /assets/", http.FileServerFS(assets))
+	http.Handle("GET /assets/", http.FileServerFS(frontend.AssetsFS))
 
 	// launcher
 	http.HandleFunc("api.betablock.net/launcher/login", api.Login)
@@ -82,7 +76,7 @@ func main() {
 
 	// news
 	http.HandleFunc("GET news.betablock.net/", news.Handle)
-	http.Handle("GET news.betablock.net/assets/", http.StripPrefix("/assets/", http.FileServerFS(news.AssetsFS)))
+	http.Handle("GET news.betablock.net/assets/", http.FileServerFS(news.AssetsFS))
 
 	httpProto := os.Getenv("HTTP_PROTO")
 	httpAddr := os.Getenv("HTTP_ADDR")

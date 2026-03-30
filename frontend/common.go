@@ -44,8 +44,11 @@ type ActionData struct {
 const maxUploadSize = 1024 * 16
 
 //go:embed templates
-var fs embed.FS
-var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv, "usercount": usercount, "version": version}).ParseFS(fs, "templates/*.html"))
+var templatesFS embed.FS
+var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv, "usercount": usercount, "version": version}).ParseFS(templatesFS, "templates/*.html"))
+
+//go:embed assets
+var AssetsFS embed.FS
 
 func Error(w http.ResponseWriter, ad ActionData, reason string) error {
 	ad.Error = reason

@@ -22,7 +22,6 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"net/http"
 
 	"github.com/patapancakes/betablock/db"
@@ -33,9 +32,7 @@ var templatesFS embed.FS
 var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"raw": func(s string) template.HTML { return template.HTML(s) }}).ParseFS(templatesFS, "templates/*.html"))
 
 //go:embed assets
-var assetsFS embed.FS
-
-var AssetsFS, _ = fs.Sub(assetsFS, "assets")
+var AssetsFS embed.FS
 
 func Handle(w http.ResponseWriter, r *http.Request) {
 	entries, err := db.GetNews(r.Context())
