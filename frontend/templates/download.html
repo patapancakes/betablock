@@ -14,13 +14,11 @@
 		<li>See more: <a href="https://vault.omniarchive.uk/archive/java/server-beta/index.html" target="_blank">Other Minecraft server versions</a></li>
 	</ul>
 </div>
-<div class="panel">
-	<form id="patcher" action="/download" enctype="multipart/form-data" method="post" download>
-		<div>Drag-and-drop or select <mark>jar</mark> to patch.</div>
-		<input id="launcher" name="launcher" type="file" class="txt" accept=".jar,application/java-archive" autocomplete="off" required>
-		{{with env "TS_SITE_KEY"}}<div class="cf-turnstile" data-size="flexible" data-sitekey="{{.}}"></div>{{end}}
-	</form>
-</div>
+<form id="patcher" class="panel" action="/download" enctype="multipart/form-data" method="post" download>
+	<div>Drag-and-drop or select <mark>jar</mark> to patch.</div>
+	<input id="launcher" name="launcher" type="file" class="txt" accept=".jar,application/java-archive" autocomplete="off" required>
+	{{with env "TS_SITE_KEY"}}<div class="cf-turnstile" data-size="flexible" data-sitekey="{{.}}"></div>{{end}}
+</form>
 <script>
 	var patchForm = document.querySelector("#patcher");
 	var patchInput = patchForm.querySelector("input");
