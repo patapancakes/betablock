@@ -19,6 +19,8 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -31,6 +33,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
+//go:embed frontend/assets
+var frontendAssetsFS embed.FS
 
 func main() {
 	// init database
@@ -50,6 +55,13 @@ func main() {
 	http.HandleFunc("/setcape", frontend.SetCosmetic)
 	http.HandleFunc("/setversion", frontend.SetVersion)
 	http.HandleFunc("/changepw", frontend.ChangePW)
+
+	assets, err := fs.Sub(frontendAssetsFS, "frontend")
+	if err != nil {
+		log.Fatalf("failed to create sub fs: %s", err)
+	}
+
+	http.Handle("GET /assets/", http.FileServerFS(assets))
 
 	// launcher
 	http.HandleFunc("api.betablock.net/launcher/login", api.Login)

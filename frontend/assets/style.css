@@ -1,0 +1,298 @@
+@font-face {
+	font-family: "minecraft";
+	src: url("/assets/minecraftfont.woff") format("woff");
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+	unicode-range: U+0020-007E, U+2018-2019, U+201C-201D, U+00A1, U+00A5, U+00A8, U+00BF, U+00D8, U+00E5-00E6, U+00F8;
+}
+
+html {
+	/* html's font-size is what controls the entire page's pixel scaling, like "GUI Scale" in Minecraft. */
+	
+	font-size: 2px;
+	
+	/*	In the rest of the CSS code, instead of using px units, use 'rem' units as if they are pixels. The 'rem' units are automatically scaled to the above scale. */
+}
+/* Screen size adjustments - larger and smaller scale where needed. */
+@media (min-width: 1370px) and (min-height:790px) {
+	html {
+		font-size: 3px;
+	}
+}
+@media (max-width: 480px), (max-height:360px) {
+	html {
+		font-size: 1px;
+	}
+}
+
+html {
+	font-family: "minecraft", monospace;
+	color-scheme: dark;
+	line-height: 1.25;
+	color: white;
+	accent-color: gold;
+	scrollbar-color: white black;
+	overflow: hidden;
+	word-wrap: break-word; overflow-wrap: break-word;
+
+	image-rendering: optimizeSpeed;
+	image-rendering: pixelated;
+	background-position: top center;
+	background-color: #866043;
+	background-size: 32rem;
+	background-image:url("/assets/dirt.png");
+}
+
+body {
+	font-size: 8rem; /* text font is 8 minecraft pixels tall. all font will size relative to this, which itself is relative to the GUI scale. */
+	
+	background:rgba(0,0,0,0.75);
+	box-sizing: border-box;
+	margin: 0;
+	height: 100vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+
+/* Text rendering is a bit blurry for a pixel font. This workaround improves it to some degree. */
+.wrapper > * {
+	transform-style: preserve-3d;
+	filter: grayscale(0.00000000000001);
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+	font-weight: normal;
+	text-shadow: 0.125em 0.125em 0px #3f3f3f;
+}
+
+/* hyperlinks */
+a:not(.btn) {
+	text-decoration-thickness: 1rem;
+	text-underline-offset: 1rem;
+	color-scheme: dark;
+	text-shadow: none;
+}
+a:not(.btn):not(:hover):not(:focus):not(:active) {
+	text-decoration: none;
+}
+
+/* lists */
+ul, ol {
+	margin-top: 4rem;
+	margin-bottom: 4rem;
+}
+ul {
+	list-style-type: square;
+}
+
+/* marker */
+mark {
+	color: #3f3f3f;
+	text-shadow: none;
+	background-color: white;
+	padding-left: 2rem;
+	padding-right: 1rem;
+	padding-bottom: 1rem;
+}
+
+/* panel box */
+.panel {
+	background: #c6c6c6; --p-background: #c6c6c6;
+	padding: 4rem;
+	box-shadow: 0 0 0 1rem black; --p-border: black;
+	border-radius: 3rem 4rem 3rem 4rem;
+	color: #3f3f3f;
+	text-shadow: none;
+	
+	max-width: calc(100% - 2rem);
+	margin: 1rem;
+	
+	border: 2rem solid;
+	border-color: white #555 #555 white; --p-inset1: white; --p-inset2: #555;
+
+	box-sizing: border-box;
+}
+@supports (background:url(),url()) and (width:calc(var(--x) * 2)) { /* Supports multiple backgrounds, variables, and calc */
+	.panel {
+		background-color: transparent;
+		border-radius: 0;
+		border: none;
+		padding: 6rem;
+
+		box-shadow: 2.5rem 0.5rem 0 -1.5rem var(--p-border), -2.5rem -0.5rem 0 -1.5rem var(--p-border), -0.5rem -2.5rem 0 -1.5rem var(--p-border), 0.5rem 2.5rem 0 -1.5rem var(--p-border);
+
+		--g-bg: linear-gradient(var(--p-background),var(--p-background));
+		--g-border: linear-gradient(var(--p-border),var(--p-border));
+		--g-in1: linear-gradient(var(--p-inset1),var(--p-inset1));
+		--g-in2: linear-gradient(var(--p-inset2),var(--p-inset2));
+		
+		background-image: var(--g-bg), var(--g-in1), var(--g-in1), var(--g-in2), var(--g-in2), var(--g-bg), var(--g-border), var(--g-border);
+		background-size: calc(100% - 5rem) calc(100% - 5rem), calc(100% - 3rem) 3rem, 2rem calc(100% - 3rem), calc(100% - 3rem) 2rem, 3rem calc(100% - 3rem), calc(100% - 2rem) calc(100% - 2rem), calc(100% - 1rem) calc(100% - 1rem), calc(100% - 1rem) calc(100% - 1rem);
+		background-position: top 2rem right 2rem, top left 1rem, top 1rem left, bottom right 1rem, bottom 1rem right, center, bottom right, top left;
+		background-repeat: no-repeat;
+	}
+}
+.panel p:first-child {
+	margin-top: 0;
+}
+.panel p:last-child {
+	margin-bottom: 0;
+}
+.panel a:not(.btn) {
+	color-scheme: light;
+}
+
+
+/* buttons */
+.btn {
+	border: 1rem solid black;
+	background: #858585;
+	padding: 3rem 5rem 5rem 5rem;
+	box-shadow: inset -1rem -2rem 0px rgba(0,0,0,0.19), inset 1rem 1rem 0px rgba(255,255,255,0.44);
+	border-radius: 0;
+	display: inline-block;
+	color: white;
+	font-size: inherit;
+	line-height:inherit;
+	font-family: inherit;
+	text-align: center;
+	text-shadow: 0.125em 0.125em 0px rgba(0,0,0,0.52);
+	
+	text-decoration: none;
+	
+	margin-bottom: 0rem;
+}
+.btn:hover, .btn:focus {
+	border-color: white;
+	cursor: pointer;
+}
+
+
+/* text inputs, file input, etc */
+.txt {
+	border: 1rem solid;
+	border-color: rgba(0,0,0,0.605) white white rgba(0,0,0,0.605);
+	background: #8b8b8b;
+	display: block;
+	border-radius: 0;
+	padding: 0px 2rem 2rem 2rem;
+	margin-top: 2rem;
+	margin-bottom: 4rem;
+	color: white;
+	text-shadow: 0.125em 0.125em 0px rgba(0,0,0,0.545);
+	font-size: inherit;
+	line-height: inherit;
+	font-family: inherit;
+}
+
+.txt:hover, .txt:focus {
+	border-color: white;
+}
+.txt::placeholder {
+	text-shadow: none;
+	color:rgba(0,0,0,0.39);
+}
+
+/* extra for file input */
+input[type="file"] {
+	padding: 1rem;
+	cursor: pointer;
+	box-sizing: border-box;
+	max-width: 100%;
+}
+input[type="file"]::file-selector-button {
+	border: 1rem solid black;
+	background: #858585;
+	padding: 3rem 5rem 5rem 5rem;
+	box-shadow: inset -1rem -2rem 0px rgba(0,0,0,0.19), inset 1rem 1rem 0px rgba(255,255,255,0.44);
+	text-shadow: 0.125em 0.125em 0px rgba(0,0,0,0.52);
+	line-height:inherit;
+	font-family: inherit;
+
+	margin-right: 4rem;
+}
+input[type="file"]:focus-within, input[type="file"]:is(:hover, :focus, :active, :focus-within)::file-selector-button {
+	border-color: white;
+}
+
+
+/* Patcher form*/
+#patcher input[type="file"] {
+	width: 100%;
+	box-sizing: border-box;
+	height: 128rem;
+	align-content: center;
+	text-align: center;
+	cursor: pointer;
+}
+
+
+/* skin & cape sprites */ 
+.skin {
+	height: 96rem; /* skins are 32px tall, and we want to show skins at 3x resolution, so 96rem. in addition to any pixel scaling */
+	display: block;
+	
+	background: black;
+	box-shadow:inset 0 0 0 4rem black;
+	
+	border: 1rem solid;
+	border-color: #373737 white white #373737;
+	padding: 4rem;
+	
+	margin-bottom: 4rem;
+}
+.skin:hover{
+	background:#ff00ff;
+}
+
+
+/* layout blocks */
+header, footer, main {
+	box-sizing: border-box;
+	text-shadow: 0.125em 0.125em 0px #3f3f3f;
+	width: 100%;
+	z-index: 10;
+}
+header, footer {
+	box-shadow: 0px 0rem 2rem 2rem black;
+}
+main {
+	display: flex;
+	background: rgba(0,0,0,0.5);
+	z-index: 5;
+	flex: 1;
+	overflow: hidden;
+	flex-direction: column;
+	justify-content: space-around;
+}
+
+.wrapper {
+	display: flex;
+	width: 427rem;
+	max-width: 100%;
+	padding: 6rem;
+	box-sizing: border-box;
+
+	margin-left: auto;
+	margin-right: auto;
+	z-index:15;
+	align-items: center;
+}
+header .wrapper {
+	justify-content: space-between;
+}
+footer .wrapper {
+	justify-content: center;
+	gap: 2rem;
+}
+main .wrapper {
+	flex-direction: column;
+	overflow: auto;
+	gap: 5rem;
+	padding: 8rem;
+}
