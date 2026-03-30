@@ -7,7 +7,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="//cdn.betablock.net/assets/style.css" rel="stylesheet" type="text/css">
 		{{with env "TS_SITE_KEY"}}<link rel="preconnect" href="https://challenges.cloudflare.com">
-		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{{end}}
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+		<style>
+			.cf-turnstile { line-height: 1; border: 1rem solid transparent; margin-bottom: 4rem; overflow: hidden; background: black; }
+			.cf-turnstile > div { margin: -2px; }
+		</style>{{end}}
 	</head>
 	<body>
 		<header>
