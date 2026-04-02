@@ -25,6 +25,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/patapancakes/betablock/db"
 )
@@ -84,6 +85,11 @@ func usercount() int {
 
 func version() string {
 	version, _, _ := db.GetRealtimeVersion(context.TODO())
+
+	s := strings.Split(version, "-")
+	if len(s) > 1 {
+		version = s[0]
+	}
 
 	switch version[0] {
 	case 'a':
