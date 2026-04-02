@@ -42,6 +42,8 @@ html {
 	background-color: #866043;
 	background-size: 32rem;
 	background-image:url("/assets/dirt.png");
+
+	-webkit-font-smoothing: none;
 }
 
 body {
