@@ -16,7 +16,9 @@
 	</head>
 	<body>
 		<header>
-			<span style="margin: 2rem; color: #505050; text-shadow: 0.125em 0.125em 0px #141414;">Minecraft {{version}}</span>
+			<div class="wrapper meta">
+				<span>Minecraft {{version}}</span>
+			</div>
 			<div class="wrapper">
 				<h1>{{.Header}}</h1>
 				<div>
@@ -55,7 +57,9 @@
 				<a class="btn" href="/changepw">Change Password</a>
 				{{end}}
 			</div>
-			<span style="float: right; margin: 2rem;">{{usercount}} registered users</span>
+			<div class="wrapper meta">
+				<span>{{usercount}} registered users</span>
+			</div>
 		</footer>
 	</body>
 </html>
