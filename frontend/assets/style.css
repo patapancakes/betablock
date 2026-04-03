@@ -40,7 +40,7 @@ html {
 	image-rendering: pixelated;
 	background-position: top center;
 	background-color: #866043;
-	background-size: 32rem;
+	background-size: 32em;
 	background-image:url("/assets/dirt.png");
 
 	-webkit-font-smoothing: none;
