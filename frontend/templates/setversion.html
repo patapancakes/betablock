@@ -1,11 +1,21 @@
 {{define "setversion"}}
-<form class="panel" action="/setversion" method="post">
-	<label for="version">Game Version</label>
-	<select class="txt" name="version" id="version" required>
-		{{if eq "" .Version}}<option disabled selected></option>{{end}}{{range .Versions}}
-		<option value="{{.}}"{{if eq . $.Version}}selected{{end}}>{{.}}</option>{{end}}
-	</select>
-	<input class="btn" type="submit" value="Submit">
-	<p>* The "realtime" option simulates the original update cycle using the current date.</p>
+<h2 class="infobar">Your game version: <b>{{nicever .Version}}</b></h2>
+<fieldset>
+    {{range .Versions}}
+        <input type="radio" name="version" value="{{.Name}}" {{if eq .Name $.Version}}checked{{end}} id="{{.Name}}" form="setversion" required>
+        <label for="{{.Name}}">
+            <span>{{nicever .Name}}</span> <!-- Name -->
+            <span> <!-- Description -->
+                {{if eq .Name "realtime"}}
+                    Simulates the original update cycle using the current date.
+                {{else}}
+                    {{if not .Time.IsZero}}<time datetime="{{.Time.Format "2006-01-02T15:04:05Z07:00"}}">{{.Time.Format "2006-01-02"}}</time>{{end}}
+                {{end}}
+            </span>
+        </label>
+    {{end}}
+</fieldset>
+<form id="setversion" class="panel" action="/setversion" method="post">
+    Set new version <input class="btn" type="submit" value="Submit">
 </form>
 {{end}}

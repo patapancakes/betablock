@@ -335,3 +335,71 @@ main .wrapper {
     background-color: darkgreen;
     border-color: lime;
 }
+
+/* fieldset - replacement for <select> */
+fieldset { /* Container */
+    border: 2rem solid black;
+    min-height: 60rem;
+    padding: 0;
+    margin: 0;
+    overflow: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+fieldset input { /* Controls the label and submission */
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    float: left; clear: both;
+    margin:0;
+    width: 0; height: 0;
+    opacity: 0;
+}
+fieldset input:focus-visible + label { /* accessibility - allow the outline on the option when the input has focus */
+    outline: auto;
+}
+
+fieldset label { /* Option */
+    display: block;    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1rem solid transparent;
+}
+fieldset input:hover + label { /* hover input/option */
+    border-color: white;
+    background: #0008;
+}
+fieldset input:checked + label { /* selected input/option */
+    border-color: gold;
+    background: #430;
+}
+
+fieldset label:before { /* ">" indicator at start of option */
+    content:"";
+    text-shadow: none;
+    align-self: stretch;
+    align-content: center;
+    text-align: right;
+    padding-bottom: 1rem;
+    width: 8rem;
+    border-right: 2rem solid transparent;
+}
+fieldset input:hover + label:before { /* hover indicator */
+    content: ">";
+    color: black;
+    background: white;
+}
+fieldset input:checked + label:before { /* selected indicator */
+    content:">";
+    color: #430;
+    background: gold;
+}
+
+fieldset label span { /* option name, option description */
+    margin:1rem 4rem 2rem 4rem;
+}
+fieldset label span + span { /* option description */
+    color: #808080;
+    text-shadow: 0.125em 0.125em 0px #202020;
+    text-align: right;
+    text-wrap: balance;
+    flex: 1;
+}

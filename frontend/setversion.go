@@ -20,26 +20,62 @@ package frontend
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/patapancakes/betablock/db"
 )
 
-func SetVersion(w http.ResponseWriter, r *http.Request) {
-	ad := ActionData{Header: "Set Version", Page: "setversion"}
-	entries, err := os.ReadDir("clients")
+var versions, _ = getVersions()
+
+func getVersions() ([]Version, error) {
+	f, err := AssetsFS.Open("assets/versions.csv")
 	if err != nil {
-		Error(w, ad, "An error occured while getting available client versions")
-		return
+		return nil, err
 	}
 
-	versions := []string{"realtime"}
+	defer f.Close()
+
+	cr := csv.NewReader(f)
+
+	versionTimes := make(map[string]time.Time)
+	for {
+		records, err := cr.Read()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+
+			return nil, err
+		}
+
+		if len(records) < 2 {
+			continue
+		}
+
+		unixTime, err := strconv.Atoi(records[1])
+		if err != nil {
+			return nil, err
+		}
+
+		versionTimes[records[0]] = time.Unix(int64(unixTime), 0)
+	}
+
+	entries, err := os.ReadDir("clients")
+	if err != nil {
+		return nil, err
+	}
+
+	var versions []Version
 	for _, e := range entries {
 		if e.Type().IsDir() {
 			continue
@@ -49,11 +85,31 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		versions = append(versions, strings.TrimSuffix(e.Name(), filepath.Ext(e.Name())))
+		version := strings.TrimSuffix(e.Name(), filepath.Ext(e.Name()))
+		versionTime, _ := versionTimes[version]
+
+		versions = append(versions, Version{Name: version, Time: versionTime})
 	}
+
+	slices.SortFunc(versions, func(a, b Version) int {
+		if !a.Time.IsZero() && !b.Time.IsZero() {
+			return a.Time.Compare(b.Time)
+		}
+
+		return strings.Compare(a.Name, b.Name)
+	})
+
+	versions = append([]Version{{Name: "realtime"}}, versions...)
+
+	return versions, nil
+}
+
+func SetVersion(w http.ResponseWriter, r *http.Request) {
+	ad := ActionData{Header: "Set Version", Page: "setversion"}
 
 	ad.Versions = versions
 
+	var err error
 	ad.Username, err = UsernameFromRequest(r)
 	if err != nil {
 		if err == http.ErrNoCookie {
@@ -87,7 +143,17 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	version := r.PostFormValue("version")
-	if !slices.Contains(versions, version) {
+
+	var found bool
+	for _, e := range versions {
+		if e.Name != version {
+			continue
+		}
+
+		found = true
+		break
+	}
+	if !found {
 		Error(w, ad, "The specified version isn't available")
 		return
 	}
@@ -99,6 +165,7 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ad.Success = true
+	ad.Version = version
 
 	err = t.Execute(w, ad)
 	if err != nil {

@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/patapancakes/betablock/db"
 )
@@ -39,14 +40,19 @@ type ActionData struct {
 	Username string
 	Version  string
 
-	Versions []string
+	Versions []Version
+}
+
+type Version struct {
+	Name string
+	Time time.Time
 }
 
 const maxUploadSize = 1024 * 16
 
 //go:embed templates
 var templatesFS embed.FS
-var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv, "usercount": usercount, "version": version}).ParseFS(templatesFS, "templates/*.html"))
+var t = template.Must(template.New("main.html").Funcs(template.FuncMap{"env": os.Getenv, "usercount": usercount, "rtversion": rtversion, "nicever": nicever}).ParseFS(templatesFS, "templates/*.html"))
 
 //go:embed assets
 var AssetsFS embed.FS
@@ -83,9 +89,7 @@ func usercount() int {
 	return count
 }
 
-func version() string {
-	version, _, _ := db.GetRealtimeVersion(context.TODO())
-
+func nicever(version string) string {
 	s := strings.Split(version, "-")
 	if len(s) > 1 {
 		version = s[0]
@@ -98,5 +102,15 @@ func version() string {
 		version = "Beta " + version[1:]
 	}
 
+	if len(s) > 1 {
+		version += " (" + s[1] + ")"
+	}
+
 	return version
+}
+
+func rtversion() string {
+	version, _, _ := db.GetRealtimeVersion(context.TODO())
+
+	return nicever(version)
 }
