@@ -19,17 +19,12 @@
 package frontend
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 )
-
-type TurnstileRequest struct {
-	Secret   string `json:"secret"`
-	Response string `json:"response"`
-	Remote   string `json:"remote"`
-}
 
 type TurnstileResponse struct {
 	// this is all we care about
@@ -37,17 +32,15 @@ type TurnstileResponse struct {
 }
 
 func verifyTurnstile(r *http.Request) (bool, error) {
-	buf := new(bytes.Buffer)
-	err := json.NewEncoder(buf).Encode(TurnstileRequest{
-		Secret:   os.Getenv("TS_SECRET_KEY"),
-		Response: r.FormValue("cf-turnstile-response"),
-		Remote:   r.Header.Get("X-Forwarded-For"),
-	})
-	if err != nil {
-		return false, err
+	if r.FormValue("cf-turnstile-response") == "" {
+		return false, fmt.Errorf("missing cf-turnstile-response")
 	}
 
-	resp, err := http.Post("https://challenges.cloudflare.com/turnstile/v0/siteverify", "application/json", buf)
+	resp, err := http.PostForm("https://challenges.cloudflare.com/turnstile/v0/siteverify", url.Values{
+		"secret":   {os.Getenv("TURNSTILE_KEY")},
+		"response": {r.FormValue("cf-turnstile-response")},
+		"remote":   {r.Header.Get("X-Forwarded-For")},
+	})
 	if err != nil {
 		return false, err
 	}
