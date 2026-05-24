@@ -37,7 +37,7 @@ func verifyTurnstile(r *http.Request) (bool, error) {
 	}
 
 	resp, err := http.PostForm("https://challenges.cloudflare.com/turnstile/v0/siteverify", url.Values{
-		"secret":   {os.Getenv("TURNSTILE_KEY")},
+		"secret":   {os.Getenv("TS_SECRET_KEY")},
 		"response": {r.FormValue("cf-turnstile-response")},
 		"remote":   {r.Header.Get("X-Forwarded-For")},
 	})
