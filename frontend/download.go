@@ -73,6 +73,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 	}
 	if fh.Size > int64(maxSize) {
 		Error(w, ad, "File too large")
+		return
 	}
 
 	b, err := io.ReadAll(http.MaxBytesReader(w, f, int64(maxSize)))
