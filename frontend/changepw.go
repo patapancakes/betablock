@@ -44,7 +44,7 @@ func ChangePW(w http.ResponseWriter, r *http.Request) {
 
 	ad.Username = username
 
-	if r.Method == "GET" {
+	if r.Method == http.MethodGet {
 		err := t.Execute(w, ad)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to execute template: %s", err), http.StatusInternalServerError)
