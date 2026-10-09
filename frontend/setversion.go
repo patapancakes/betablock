@@ -122,14 +122,18 @@ func SetVersion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ad.Version, err = db.GetUserClientVersion(r.Context(), ad.Username)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		if err == http.ErrNoCookie {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			if err == http.ErrNoCookie {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				return
+			}
+
+			http.Redirect(w, r, "/logout", http.StatusSeeOther)
 			return
 		}
 
-		http.Redirect(w, r, "/logout", http.StatusSeeOther)
-		return
+		ad.Version = "realtime"
 	}
 
 	if r.Method == http.MethodGet {
