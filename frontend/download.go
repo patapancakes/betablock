@@ -92,7 +92,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/java-archive")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s-patched.jar\"", strings.TrimSuffix(fh.Filename, path.Ext(fh.Filename))))
-	err = patcher.New(zr).Write(w)
+	_, err = patcher.New(zr).WriteTo(w)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to write patched zip: %s", err), http.StatusInternalServerError)
 		return

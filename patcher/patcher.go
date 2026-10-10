@@ -49,8 +49,21 @@ func New(zr *zip.Reader) *Patcher {
 	return &Patcher{zip: zr}
 }
 
-func (p *Patcher) Write(out io.Writer) error {
-	zw := zip.NewWriter(out)
+type writeCounter struct {
+	w io.Writer
+	n int64
+}
+
+func (wc *writeCounter) Write(p []byte) (int, error) {
+	n, err := wc.w.Write(p)
+	wc.n += int64(n)
+	return n, err
+}
+
+func (p *Patcher) WriteTo(out io.Writer) (int64, error) {
+	wc := &writeCounter{w: out}
+
+	zw := zip.NewWriter(wc)
 	defer zw.Close()
 
 	for _, f := range p.zip.File {
@@ -61,7 +74,7 @@ func (p *Patcher) Write(out io.Writer) error {
 
 		fr, err := f.Open()
 		if err != nil {
-			return err
+			return wc.n, err
 		}
 
 		defer fr.Close()
@@ -127,16 +140,16 @@ func (p *Patcher) Write(out io.Writer) error {
 
 		fw, err := zw.Create(f.Name)
 		if err != nil {
-			return err
+			return wc.n, err
 		}
 
 		_, err = io.Copy(fw, body)
 		if err != nil {
-			return err
+			return wc.n, err
 		}
 	}
 
-	return nil
+	return wc.n, nil
 }
 
 func strb(s string) []byte {

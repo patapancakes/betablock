@@ -138,7 +138,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		}
 
 		patched := new(bytes.Buffer)
-		err = patcher.New(zr).Write(patched)
+		_, err = patcher.New(zr).WriteTo(patched)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("failed to patch client: %s", err), http.StatusInternalServerError)
 			return
