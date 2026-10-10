@@ -64,7 +64,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	const maxSize = 1024 * 1024 * 4 // 4MB
+	const maxSize = 1024 * 1024 * 10 // 10MB
 
 	f, fh, err := r.FormFile("launcher")
 	if err != nil {
