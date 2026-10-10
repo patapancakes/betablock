@@ -41,11 +41,11 @@ func JoinServer(w http.ResponseWriter, r *http.Request) {
 
 	username, err := db.GetUsernameFromSession(r.Context(), sessionId)
 	if err != nil {
-		http.Error(w, "Bad login", http.StatusOK)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 	if r.URL.Query().Get("user") != username {
-		http.Error(w, "Bad login", http.StatusOK)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 
@@ -67,11 +67,11 @@ func Session(w http.ResponseWriter, r *http.Request) {
 
 	username, err := db.GetUsernameFromSession(r.Context(), session)
 	if err != nil {
-		http.Error(w, "Bad login", http.StatusOK)
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
-	if r.URL.Query().Get("name") != username {
-		http.Error(w, "Bad login", http.StatusOK)
+	if r.URL.Query().Get("user") != username {
+		http.Error(w, "Bad login", http.StatusBadRequest)
 		return
 	}
 

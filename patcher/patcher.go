@@ -92,7 +92,7 @@ func (p *Patcher) WriteTo(out io.Writer) (int64, error) {
 		case filepath.Ext(f.Name) == ".class":
 			body = replace.Chain(body,
 				// client
-				replace.Bytes(strb("https://login.minecraft.net/session?name="), strb("https://"+apiHost+"/client/session?name=")),
+				replace.Bytes(strb("https://login.minecraft.net/session?name="), strb("https://"+apiHost+"/client/session?user=")),
 				replace.Bytes(strb("http://session.minecraft.net/game/joinserver.jsp?user="), strb("https://"+apiHost+"/client/joinserver?user=")),
 				replace.Bytes(strb("http://www.minecraft.net/game/joinserver.jsp?user="), strb("https://"+apiHost+"/client/joinserver?user=")),
 
